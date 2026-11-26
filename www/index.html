@@ -180,7 +180,7 @@ function serEst(x){const P=x.prox,n=+x.ult+1,ch=x.chk?' <small class="mut">· re
 const LN=(()=>{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;return(C.Plugins&&C.Plugins.LocalNotifications)||(C.registerPlugin&&C.registerPlugin('LocalNotifications'))})();
 const hid=s=>{let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)%2000000000+1};
 function notifPlan(){const out=[],now=Date.now(),at=(f,h)=>{const d=dObj(f);d.setHours(h||10,0,0,0);return d};
-  const add=(key,f,title,body)=>{const d=at(f);if(d.getTime()>now+60000)out.push({id:hid(key),title,body,schedule:{at:d,allowWhileIdle:true}})};
+  const add=(key,f,title,body)=>{const d=at(f);if(d.getTime()>now+60000)out.push({id:hid(key),title,body,isExactNotification:false,schedule:{at:d,allowWhileIdle:true}})};
   D.series.forEach(x=>{const P=x.prox;if(!P||!P.f)return;const t='Temporada '+(P.temp||+x.ult+1)+' de '+x.t;const plan=serPlan(x).replace(/<[^>]+>/g,'');
     add('se1'+x.id+P.f,addD(P.f,0,-(+D.avisoEstreno||7)),t+' sale el '+fDM(P.f),plan);add('se0'+x.id+P.f,P.f,t+': ¡sale hoy!',plan);
     if(P.fin&&P.fin>P.f)add('sef'+x.id+P.fin,P.fin,t+': ya salió completa','Si rotás '+svcName(x.svc)+', este es el momento de activarla.')});
