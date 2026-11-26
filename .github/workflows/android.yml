@@ -6,6 +6,9 @@ on:
     paths-ignore: ['docs/**', 'store/**', '*.md']
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -44,6 +47,14 @@ jobs:
         with:
           name: seriefilos-prueba-apk
           path: android/app/build/outputs/apk/debug/*.apk
+
+      - name: Publicar el APK de prueba para bajarlo desde el celular
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk seriefilos-prueba.apk
+          gh release delete prueba --yes --cleanup-tag || true
+          gh release create prueba seriefilos-prueba.apk --title "Versión de prueba" --notes "APK de prueba (armado ${{ github.run_number }}). Para instalar en el celular, no para Google Play." --prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Preparar la llave de firma
         id: firma
