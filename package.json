@@ -5,7 +5,7 @@
   "description": "Seriéfilos: pagá solo las plataformas que usás.",
   "scripts": {
     "sync": "cap sync android",
-    "icons": "capacitor-assets generate --android --iconBackgroundColor '#1b1033' --iconBackgroundColorDark '#1b1033' --splashBackgroundColor '#1b1033' --splashBackgroundColorDark '#1b1033'"
+    "icons": "capacitor-assets generate --android --iconBackgroundColor '#0b0b0c' --iconBackgroundColorDark '#0b0b0c' --splashBackgroundColor '#0b0b0c' --splashBackgroundColorDark '#0b0b0c'"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.3",
