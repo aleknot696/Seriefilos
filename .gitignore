@@ -1,6 +1,7 @@
 node_modules/
 *.jks
 *.keystore
+!android/app/debug.keystore
 s_*.png
 .DS_Store
 android/app/build/

@@ -17,6 +17,13 @@ android {
         }
     }
     signingConfigs {
+        // Llave fija para las versiones de prueba: así cada APK nuevo se instala encima del anterior sin borrar datos
+        debug {
+            storeFile file("debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
         release {
             def ks = System.getenv("KEYSTORE_FILE")
             if (ks) {
