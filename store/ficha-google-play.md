@@ -23,6 +23,7 @@ Rotá tus plataformas de streaming, no te pierdas estrenos y ahorrá cada mes.
 
 🔎 DESCUBRIR
 • Lo que se estrena esta semana y las temporadas que vuelven pronto, en las plataformas que ya pagás.
+• Las series mejor puntuadas que están en tus plataformas en Argentina.
 • Agregalo a tu lista con un toque.
 
 ⏳ SERIES EN ESPERA
@@ -36,7 +37,7 @@ Rotá tus plataformas de streaming, no te pierdas estrenos y ahorrá cada mes.
 🔒 PRIVACIDAD
 Sin cuentas, sin publicidad y sin seguimiento. Tus datos quedan solo en tu teléfono.
 
-Seriéfilos no está afiliada a Netflix, Disney, Warner Bros. Discovery, Amazon, Apple, Crunchyroll, Paramount ni a ninguna otra plataforma. Los nombres se usan solo para identificar cada servicio. Datos de series: TVmaze (CC BY-SA).
+Seriéfilos no está afiliada a Netflix, Disney, Warner Bros. Discovery, Amazon, Apple, Crunchyroll, Paramount ni a ninguna otra plataforma. Los nombres se usan solo para identificar cada servicio. Datos de series: TVmaze (CC BY-SA). “Mejor puntuadas”: TMDB (esta app usa la API de TMDB pero no está avalada ni certificada por TMDB); disponibilidad en plataformas: JustWatch.
 
 **Categoría:** Entretenimiento
 **Etiquetas sugeridas:** streaming, series, ahorro

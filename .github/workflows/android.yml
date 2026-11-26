@@ -33,6 +33,12 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      - name: Clave de TMDB (secreto TMDB_KEY; no se guarda en el repositorio)
+        env:
+          TMDB_KEY: ${{ secrets.TMDB_KEY }}
+        run: |
+          if [ -n "$TMDB_KEY" ]; then sed -i "s/__TMDB_KEY__/${TMDB_KEY}/" www/index.html; else echo "Sin TMDB_KEY: la fila Mejor puntuadas queda desactivada"; fi
+
       - name: Copiar la app web al proyecto Android
         run: npx cap sync android
 

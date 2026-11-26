@@ -417,13 +417,32 @@ function vDesc(){if(!DESC||DESC.d!==today()||DESC.n<14){if(!S.dbusy&&!S.derr)set
   const enL=new Set(D.watch.filter(w=>w.tvm).map(w=>w.tvm)),it=((DESC&&DESC.d===today())?DESC.it:[]).filter(z=>!solo||mias.has(z.svc)),hoy=today(),f7=addD(hoy,0,6);
   const grp=(L,lab)=>{const m=new Map();L.sort((a,b)=>a.f<b.f?-1:a.f>b.f?1:b.w-a.w||a.s-b.s||a.e-b.e).forEach(z=>{if(!m.has(z.sid))m.set(z.sid,z)});return[...m.values()].slice(0,20).map(z=>'<div>'+poster(z.img,z.n,svcName(z.svc))+'<div class="meta"><small>'+lab(z)+'</small>'+(enL.has(z.sid)?'<button class="add" disabled aria-label="'+esc(z.n)+' ya está en tu lista">'+ico('check',16)+'</button>':'<button class="add" data-dadd="'+z.sid+'" aria-label="Agregar '+esc(z.n)+' a Para ver">'+ico('plus',16)+'</button>')+'</div></div>').join('')};
   const r1=grp(it.filter(z=>z.f>=hoy&&z.f<=f7),z=>esc(fSem(z.f))+'<br>'+(z.e===1?(z.s===1?'Estreno':'T'+z.s+' · estreno'):'T'+z.s+'E'+z.e)),r2=grp(it.filter(z=>z.f>=hoy&&z.e===1&&z.s>1),z=>'T'+z.s+' · '+fDM(z.f));
+  const tsv=solo?[...mias]:Object.keys(catS()),tk=tsv.map(k=>TPROV[k]).filter(Boolean).sort((a,b)=>a-b).join('|');if(TMDB_OK&&!(TOP&&TOP.d===today()&&TOP.k===tk)&&!S.tbusy&&!S.terr)setTimeout(()=>topLoad(tsv),0);
+  const enT=new Set(D.watch.map(w=>w.tmdb).filter(Boolean)),r3=(TOP&&TOP.k===tk?TOP.it:[]).map(z=>'<div>'+poster(z.img,z.n,'★ '+String(z.v.toFixed(1)).replace('.',','))+'<div class="meta"><small>'+esc(z.y||'')+'</small>'+(enT.has(z.id)?'<button class="add" disabled aria-label="'+esc(z.n)+' ya está en tu lista">'+ico('check',16)+'</button>':'<button class="add" data-tadd="'+z.id+'" aria-label="Agregar '+esc(z.n)+' a Para ver">'+ico('plus',16)+'</button>')+'</div></div>').join('');
   const prog=S.dbusy?'<p class="mut" style="font-size:13px">Buscando estrenos… ('+(DESC?DESC.n:0)+' de 14 días)</p>':'';
   const row=(t,sub,html,vac)=>'<section class="dsec"><h2>'+t+'</h2><p class="hint">'+sub+'</p>'+(html?'<div class="hrow">'+html+'</div>':'<p class="mut" style="font-size:14px">'+(S.dbusy?'Buscando…':vac)+'</p>')+'</section>';
   return(mias.size?'<div class="chips" role="group" aria-label="Plataformas"><button class="chip" data-df="mias" aria-pressed="'+(S.df==='mias')+'">En mis plataformas</button><button class="chip" data-df="todas" aria-pressed="'+(S.df==='todas')+'">Todas</button></div>':'')+prog+
    (S.derr&&!S.dbusy?'<div class="alert"><p>No pude traer toda la programación (¿sin conexión?).</p><div class="acts"><button class="btn sm" data-act="dretry">Reintentar</button></div></div>':'')+
    row('Estrenan esta semana','Episodios y temporadas nuevas '+(solo?'en lo que ya pagás':'en las plataformas que hay en Argentina')+'.',r1,'No encontré estrenos para estos días.')+
    row('Vuelven pronto','Temporadas nuevas que se estrenan en las próximas dos semanas.',r2,'No hay temporadas nuevas en estas dos semanas.')+
-   '<p class="foot">Programación: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA)</p>'}
+   (TMDB_OK?'':'<!-- sin clave de TMDB -->')+(!TMDB_OK?'':row('Mejor puntuadas','Según los usuarios de TMDB, '+(solo?'en tus plataformas':'en las plataformas que hay en Argentina')+'.',r3,S.tbusy?'Buscando…':S.terr?'No pude traer la lista (¿sin conexión?).':'No encontré series.'))+
+   '<p class="foot">Programación: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA) · Mejor puntuadas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a> · Dónde ver: <a href="https://www.justwatch.com/ar" target="_blank" rel="noopener">JustWatch</a></p>'}
+/* Mejor puntuadas: TMDB (disponibilidad por plataforma en Argentina: JustWatch). Esta app usa la API de TMDB pero no está avalada ni certificada por TMDB. */
+const TMDB='https://api.themoviedb.org/3',TMDB_KEY='__TMDB_KEY__',TIMG='https://image.tmdb.org/t/p/w185';
+const TMDB_OK=!TMDB_KEY.startsWith('__');
+const TPROV={netflix:8,disney:337,prime:119,appletv:350,crunchyroll:283,paramount:531,hbo:1899};
+const KTOP='seriefilos:top';let TOP=null;try{TOP=JSON.parse(localStorage.getItem(KTOP)||'null')}catch(e){}
+async function topLoad(svcs){const ids=svcs.map(k=>TPROV[k]).filter(Boolean).sort((a,b)=>a-b),key=ids.join('|');if(!ids.length){TOP={d:today(),k:key,it:[]};return}
+  if(S.tbusy||(TOP&&TOP.d===today()&&TOP.k===key))return;S.tbusy=true;S.terr=false;
+  try{const r=await fetchT(TMDB+'/discover/tv?api_key='+TMDB_KEY+'&language=es-AR&watch_region=AR&with_watch_monetization_types=flatrate&with_watch_providers='+encodeURIComponent(key)+'&without_genres=10763|10767&sort_by=vote_average.desc&vote_count.gte=300&page=1',10000);if(!r.ok)throw 0;
+    const j=await r.json();TOP={d:today(),k:key,it:(j.results||[]).slice(0,20).map(x=>({id:x.id,n:x.name,img:x.poster_path?TIMG+x.poster_path:'',v:+x.vote_average||0,y:(x.first_air_date||'').slice(0,4)}))};try{localStorage.setItem(KTOP,JSON.stringify(TOP))}catch(e){}}
+  catch(e){S.terr=true}S.tbusy=false;if(S.route==='paraver'&&S.ptab==='desc'&&!S.det)render()}
+async function topAdd(z,mias){toast('Agregando “'+z.n+'”…');let tvm=null,img=z.img,svc='';
+  try{const r=await fetchT(TMDB+'/tv/'+z.id+'/external_ids?api_key='+TMDB_KEY);if(r.ok){const e=await r.json();for(const u of[e.tvdb_id&&TVM+'/lookup/shows?thetvdb='+e.tvdb_id,e.imdb_id&&TVM+'/lookup/shows?imdb='+e.imdb_id].filter(Boolean)){try{const q=await fetchT(u);if(q.ok){const sh=await q.json();if(sh&&sh.id){tvm=sh.id;if(sh.image&&sh.image.medium)img=sh.image.medium;break}}}catch(x){}}}}catch(x){}
+  try{const r=await fetchT(TMDB+'/tv/'+z.id+'/watch/providers?api_key='+TMDB_KEY);if(r.ok){const a=(((await r.json()).results||{}).AR||{}).flatrate||[],ks=a.map(p=>Object.keys(TPROV).find(k=>TPROV[k]===p.provider_id)).filter(Boolean);svc=ks.find(k=>mias.has(k))||ks[0]||''}}catch(x){}
+  if(D.watch.some(w=>(tvm&&w.tvm===tvm)||w.tmdb===z.id))return toast('Ya está en tu lista');
+  const x={id:uid(),t:z.n,svc,tipo:'Serie',tvm,img,tmdb:z.id};D.watch.push(x);save();render();toast('“'+z.n+'” agregada a tu lista');
+  if(tvm)epLoad(tvm).then(e=>{progUpd(x,e);x.progd=today();save()}).catch(()=>{})}
 /* En espera con carátulas */
 function vSeries(){$('#hero').innerHTML='';const cs=catS(),L=D.series;let h='';
   const up=L.filter(x=>x.prox&&x.prox.f&&dias(x.prox.f)>=0).sort((a,b)=>a.prox.f<b.prox.f?-1:1)[0];
@@ -453,7 +472,7 @@ function vAjustes(){$('#hero').innerHTML='';
   return '<div class="card"><h2>Avisos</h2><div class="form" style="margin-top:10px"><label>Avisarme de estrenos (días antes)<input inputmode="numeric" data-cfg="avisoEstreno" value="'+esc(D.avisoEstreno)+'"></label><label>Avisarme de cortes (días antes)<input inputmode="numeric" data-cfg="aviso" value="'+esc(D.aviso)+'"></label></div>'+(LN?'<div class="acts"><button class="btn ghost" data-act="notifs">'+(D.notifOk?'Revisar permiso de notificaciones':'Activar notificaciones')+'</button></div>':'')+'</div>'+
    '<div class="card"><h2>Dólar</h2><p class="hint">Para las plataformas que cobran en dólares uso el dólar oficial más '+esc(rec())+'% de impuestos. Hoy: '+fmt(dolar())+'.</p><div class="form"><label>Usar otro valor (0 = automático)<input inputmode="numeric" data-cfg="dolarManual" value="'+esc(D.dolarManual||0)+'"></label></div></div>'+
    '<div class="card"><h2>Tus datos</h2><p class="hint">Todo queda guardado solo en este celular. Hacé una copia si vas a cambiar de teléfono.</p><div class="acts"><button class="btn ghost" data-act="exp">Exportar copia</button><label class="btn ghost" style="flex-direction:row;color:var(--ink);font-size:16px">Importar copia<input type="file" accept="application/json,.json,text/plain,application/octet-stream" data-imp hidden></label><button class="btn ghost" data-act="borrar" style="color:var(--bad)">Borrar todo</button></div></div>'+
-   '<div class="card"><h2>Acerca de</h2><p class="hint" style="margin-top:6px">Seriéfilos '+VERSION+'. Precios y promos de referencia para Argentina, revisados una vez por mes; pueden variar. Datos de series de TVmaze (CC BY-SA). Búsquedas en JustWatch. Seriéfilos no está afiliada a ninguna plataforma.</p><a class="btn ghost" href="https://aleknot696.github.io/Seriefilos/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a></div>'}
+   '<div class="card"><h2>Acerca de</h2><p class="hint" style="margin-top:6px">Seriéfilos '+VERSION+'. Precios y promos de referencia para Argentina, revisados una vez por mes; pueden variar. Datos de series de TVmaze (CC BY-SA). “Mejor puntuadas”: datos y carátulas de TMDB; esta app usa la API de TMDB pero no está avalada ni certificada por TMDB. Disponibilidad en plataformas: JustWatch. Búsquedas en JustWatch. Seriéfilos no está afiliada a ninguna plataforma.</p><a class="btn ghost" href="https://aleknot696.github.io/Seriefilos/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a></div>'}
 const VIEWS={inicio:vInicio,plataformas:vPlataformas,paraver:vParaver,series:vSeries,promos:vPromos,ajustes:vAjustes};
 function render(){
   $('#view').innerHTML=VIEWS[S.route]();
@@ -501,7 +520,8 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
   if(d.lr!=null){const x=D.watch.find(z=>z.id===S.det),s=S.lres[+d.lr];if(x&&s){x.tvm=s.id;x.img=s.image&&s.image.medium||'';x.tipo='Serie';delete x.nolink;if(!x.svc)x.svc=svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name));S.lres=null;save();render();toast('Listo: ya podés seguir los capítulos')}return}
   if(d.wf!=null){S.wf=d.wf==='*'?null:d.wf;render();return}
   if(d.es!=null){S.dseas=+d.es;render();return}
-  if(d.df!=null){S.df=d.df;render();return}
+  if(d.df!=null){S.df=d.df;S.terr=false;render();return}
+  if(d.tadd!=null){const z=TOP&&TOP.it.find(q=>q.id===+d.tadd);if(z){b.disabled=true;topAdd(z,new Set(D.subs.filter(x=>x.svc).map(x=>x.svc)))}return}
   if(d.dadd!=null){const z=DESC&&DESC.it.find(q=>q.sid===+d.dadd);if(!z||D.watch.some(w=>w.tvm===z.sid))return;D.watch.push({id:uid(),t:z.n,svc:z.svc,tipo:'Serie',tvm:z.sid,img:z.img});save();render();toast('“'+z.n+'” agregada a tu lista');return}
   if(d.sr!=null){const s=S.sres[+d.sr];S.ssel={name:s.name,id:s.id,img:s.image&&s.image.medium||'',premiered:s.premiered,svc:svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)),temps:null,cargando:true};S.sult='1';render();
     const sel=S.ssel;serTemps(s.id).then(n=>{sel.temps=n;if(n)S.sult=String(n)}).catch(()=>{}).finally(()=>{sel.cargando=false;if(S.ssel===sel)render()});return}
@@ -531,7 +551,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
     case 'wvisto':{const x=C.watch.find(z=>z.id===S.det);if(!x)break;x.visto=true;save();location.hash='paraver';toast('Marcada como vista');break}
     case 'wdel':{const x=C.watch.find(z=>z.id===S.det);if(!x||!await ask('¿Quitar “'+x.t+'” de tu lista?','Quitar'))break;C.watch.splice(C.watch.indexOf(x),1);save();location.hash='paraver';break}
     case 'wlink':{const x=C.watch.find(z=>z.id===S.det);if(!x)break;S.lbusy=true;render();try{S.lres=await tvmSearch(x.t.replace(/\s*\(T\d+\)$/,''))}catch(err){S.lres=[];toast('Sin conexión')}S.lbusy=false;render();break}
-    case 'dretry':S.derr=false;descLoad();render();break;
+    case 'dretry':S.derr=false;S.terr=false;descLoad();render();break;
     case 'saddopen':S.sadd=true;render();break;
     case 'saddclose':S.sadd=false;S.sres=null;render();break;
     case 'sermanual':S.ssel={name:S.sq.trim()||'Serie',id:null,svc:''};S.sult='1';render();break;
