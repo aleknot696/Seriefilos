@@ -97,6 +97,10 @@ s{color:var(--mut);font-weight:400}
 .hb{display:flex;align-items:flex-end;gap:12px}.hb p{margin:2px 0 0;font-size:14px;color:#d4d4d8}
 .cd{text-align:center;background:#000000b3;border-radius:12px;padding:6px 10px}.cd b{display:block;font:800 26px/1 var(--disp);color:var(--amb)}.cd small{font-size:11px;color:#d4d4d8}
 .srow{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.srow:first-child{border-top:0}.srow>.pst{width:64px;flex:none;align-self:flex-start}.srow>.pst>span{font-size:10px;left:5px;right:5px;bottom:5px;overflow-wrap:break-word}
+.alp{display:flex;gap:12px;align-items:flex-start}.alp>.pst{width:48px;flex:none}.alp>.pst>span{display:none}.alp>div{flex:1;min-width:0}
+.prow{display:flex;gap:8px;overflow-x:auto;margin-top:10px;scrollbar-width:none}.prow>a{width:56px;flex:none}.prow .pst>span{font-size:9px;left:4px;right:4px;bottom:4px;overflow-wrap:normal;hyphens:auto}
+.card .hrow{margin:8px -16px 0}.hrow>a.gi{width:96px;flex:none}
+.mono{width:44px;height:44px;border-radius:10px;background:var(--soft);border:1px solid var(--line);color:var(--amb);display:flex;align-items:center;justify-content:center;font:800 15px/1 var(--disp);flex:none}
 .foot{font-size:13px;color:var(--mut);text-align:center;margin:20px 0 6px}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 </style>
@@ -256,12 +260,12 @@ async function askNotifs(){if(!LN){toast('Las notificaciones funcionan en la app
 function alerts(){const al=[],k=nowK(),av=+D.avisoEstreno||7;
   D.subs.forEach(x=>{if(x.rot&&x.alta&&!x.baja&&!x.pausa)al.push('<div class="alert"><p><b>Date de baja en '+esc(subInfo(x).n)+'</b>: la activaste el '+fDM(x.alta)+' y la seguís viendo hasta el '+fDM(subCorte(x))+' aunque la canceles hoy.</p><div class="acts"><button class="btn sm" data-act="subbaja" data-i="'+D.subs.indexOf(x)+'">Ya me di de baja</button></div></div>')});
   D.subs.forEach(x=>{if(!x.baja)return;const f=subCorte(x);if(!f||(x.bajaSF&&!x.hasta))return;const d=dias(f);if(d<0||d>(+D.aviso||7))return;const pw=pend(x.svc);if(!pw.length)return;
-    const tl=pw.slice(0,3).map(w=>esc(w.t)).join(', ')+(pw.length>3?' y '+(pw.length-3)+' más':'');
-    al.push('<div class="alert"><p><b>'+esc(subInfo(x).n)+' se corta '+(d===0?'hoy':d===1?'mañana':'el '+fDM(f)+' (en '+d+' días)')+'</b>. Te falta'+(pw.length>1?'n':'')+': '+tl+'.'+(d<=2?' ¿Llegás a terminar? Si no, reactivala antes de que se corte.':'')+'</p></div>')});
+    const tl=pw.slice(0,3).map(w=>esc(w.t)+(w.prog&&w.prog.t>w.prog.v?' ('+pl(w.prog.t-w.prog.v,'episodio')+')':'')).join(', ')+(pw.length>3?' y '+(pw.length-3)+' más':'');const pc=pw.find(w=>w.img)||pw[0];
+    al.push('<div class="alert alp">'+poster(pc.img,pc.t)+'<div><p><b>'+esc(subInfo(x).n)+' se corta '+(d===0?'hoy':d===1?'mañana':'el '+fDM(f)+' (en '+d+' días)')+'</b>. Te falta'+(pw.length>1?'n':'')+': '+tl+'.'+(d<=2?' ¿Llegás a terminar? Si no, reactivala antes de que se corte.':'')+'</p></div></div>')});
   D.subs.forEach(x=>{if(!x.promo)return;const fin=promoFin(x);if(fin!==k&&fin!==addM(k,1))return;al.push('<div class="alert"><p><b>Tu promo de '+esc(subInfo(x).n)+' termina '+(fin===k?'este mes':'el mes que viene')+'</b>. Desde '+esc(lab(addM(fin,1)))+' vuelve a '+fmt(subFin(x))+' por mes.</p></div>')});
   D.series.forEach((x,i)=>{const P=x.prox;if(!P||!P.f)return;const d=dias(P.f);
-    if(d>=0&&d<=Math.max(av,30))al.push('<div class="alert"><p><b>'+esc(x.t)+': temporada '+esc(P.temp||+x.ult+1)+(d?' sale el '+fDM(P.f)+' (en '+pl(d,'día')+')':' sale hoy')+'</b>. '+serPlan(x)+'</p></div>');
-    else if(d<0&&d>=-45)al.push('<div class="alert"><p><b>Ya salió la temporada '+esc(P.temp||+x.ult+1)+' de '+esc(x.t)+'</b>. '+serPlan(x)+'</p><div class="acts"><button class="btn sm" data-act="sertow" data-i="'+i+'">Pasar a “Para ver”</button></div></div>')});
+    if(d>=0&&d<=Math.max(av,30))al.push('<div class="alert alp">'+poster(x.img,x.t)+'<div><p><b>'+esc(x.t)+': temporada '+esc(P.temp||+x.ult+1)+(d?' sale el '+fDM(P.f)+' (en '+pl(d,'día')+')':' sale hoy')+'</b>. '+serPlan(x)+'</p></div></div>');
+    else if(d<0&&d>=-45)al.push('<div class="alert alp">'+poster(x.img,x.t)+'<div><p><b>Ya salió la temporada '+esc(P.temp||+x.ult+1)+' de '+esc(x.t)+'</b>. '+serPlan(x)+'</p><div class="acts"><button class="btn sm" data-act="sertow" data-i="'+i+'">Pasar a “Para ver”</button></div></div></div>')});
   return al.join('')}
 function sugerencia(){const by={};D.watch.filter(w=>!w.visto&&w.svc).forEach(w=>{(by[w.svc]=by[w.svc]||[]).push(w)});
   const rk=Object.keys(by).sort((a,b)=>by[b].length-by[a].length);if(!rk.length)return '';
@@ -274,8 +278,9 @@ function vInicio(){subVencidas();const st=subTot(),pag=D.subs.filter(x=>subPaga(
   if(D.intro&&!D.subs.length)h+='<div class="card"><h2>Pagá solo lo que ves</h2><p class="hint" style="margin-top:8px">Cargá tus plataformas, armá tu lista de lo que querés ver y sumá las series que esperan temporada nueva. Seriéfilos te dice qué plataforma activar cada mes, cuándo darte de baja sin quedarte a medias y si una promo te conviene.</p><div class="acts"><a class="btn" href="#plataformas">Cargar mis plataformas</a><button class="btn ghost" data-act="introx">Cerrar</button></div></div>';
   if(LN&&!D.notifOk)h+='<div class="card"><p style="margin:0 0 8px"><b>Activá las notificaciones</b> para que te avise de estrenos, de cuándo se corta una plataforma y del fin de tus promos.</p><button class="btn" data-act="notifs">Activar avisos</button></div>';
   h+=al;
-  if(sg)h+='<div class="card"><h2>El mes que viene</h2><div style="margin-top:8px">'+sg+'</div></div>';
-  if(nx.length)h+='<div class="card"><h2>Próximos estrenos</h2>'+nx.map(x=>'<div class="row"><span><b>'+esc(x.t)+'</b> T'+esc(x.prox.temp)+'<br><small class="mut">'+esc(svcName(x.svc))+'</small></span><span style="flex:none" class="price">'+fDM(x.prox.f)+'</span></div>').join('')+'</div>';
+  if(sg){const by={};D.watch.filter(w=>!w.visto&&w.svc).forEach(w=>{(by[w.svc]=by[w.svc]||[]).push(w)});const top=Object.keys(by).sort((a,b)=>by[b].length-by[a].length).slice(0,2),ws=top.flatMap(k=>by[k]).slice(0,8);
+    h+='<div class="card"><h2>El mes que viene</h2><div style="margin-top:8px">'+sg+'</div>'+(ws.length?'<div class="prow">'+ws.map(w=>'<a href="#ver/'+esc(w.id)+'" aria-label="'+esc(w.t)+'">'+poster(w.img,w.t)+'</a>').join('')+'</div>':'')+'</div>'}
+  if(nx.length)h+='<div class="card"><header><h2>Próximos estrenos</h2><a href="#series" style="font-size:14px;font-weight:700;color:var(--amb);text-decoration:none">Ver todos</a></header><div class="hrow">'+nx.map(x=>{const d=dias(x.prox.f);return '<a href="#series" class="gi" aria-label="'+esc(x.t)+'">'+poster(x.img,x.t,x.svc?svcName(x.svc):'')+'<small><b style="color:var(--ink)">T'+esc(x.prox.temp)+' · '+fDM(x.prox.f)+'</b><br>'+(d?'en '+pl(d,'día'):'hoy')+'</small></a>'}).join('')+'</div></div>';
   if(!al&&!sg&&!nx.length&&!(D.intro&&!D.subs.length))h+='<div class="card empty">No hay nada urgente. Sumá títulos en “Para ver” y series en “En espera” para que la app te sugiera qué activar.</div>';
   return h}
 function rotHTML(x,i){const pw=pend(x.svc).length,pt=pw?' <span class="tag">'+pw+' para ver</span>':'';
@@ -312,7 +317,7 @@ function vPlataformas(){subVencidas();const cs=catS(),ids=Object.keys(cs).sort((
   $('#hero').innerHTML='<div class="hero"><small>Total de este mes</small><div class="big">'+fmt(subTot())+'</div><p>'+(CAT&&CAT.actualizado?'Precios de referencia en Argentina al '+esc(CAT.actualizado)+', con impuestos.':'Precios de referencia.')+'</p></div>';
   if(!S.ns||(S.ns!=='otra'&&!cs[S.ns]))S.ns=ids[0]||'otra';const sv=cs[S.ns],pls=sv?Object.keys(sv.planes||{}):[];if(sv&&!sv.planes[S.np])S.np=pls[0]||'';
   let h=D.subs.map((x,i)=>{const inf=subInfo(x),sv2=x.svc&&cs[x.svc],pr=subFinK(x),pa=subPaga(x);
-    return '<div class="it"><div class="ith"><h3>'+esc(inf.n)+(inf.mon==='USD'?' <small class="mut">USD '+esc(String(inf.m).replace('.',','))+'</small>':'')+'</h3><span class="price"'+(pa?'':' style="opacity:.5"')+'>'+fmt(pr)+'</span><button class="x" aria-label="Quitar '+esc(inf.n)+'" data-delsub="'+i+'">×</button></div>'+
+    return '<div class="it"><div class="ith"><span class="mono" aria-hidden="true">'+esc(mono(x.svc,inf.n))+'</span><h3>'+esc(inf.n)+(inf.mon==='USD'?' <small class="mut">USD '+esc(String(inf.m).replace('.',','))+'</small>':'')+'</h3><span class="price"'+(pa?'':' style="opacity:.5"')+'>'+fmt(pr)+'</span><button class="x" aria-label="Quitar '+esc(inf.n)+'" data-delsub="'+i+'">×</button></div>'+
      (x.svc?'<label style="margin-top:6px">Plan<select data-subplan="'+i+'">'+(sv2?Object.keys(sv2.planes).map(p=>'<option value="'+esc(p)+'"'+(p===x.plan?' selected':'')+'>'+esc(sv2.planes[p].n)+'</option>').join(''):'')+'</select></label>':'<p class="mut" style="margin:4px 0 0;font-size:14px">Precio cargado a mano</p>')+
      rotHTML(x,i)+promoHTML(x,i)+'</div>'}).join('');
   if(!D.subs.length)h='<div class="card empty">Todavía no cargaste plataformas.</div>';
@@ -323,6 +328,8 @@ function vPlataformas(){subVencidas();const cs=catS(),ids=Object.keys(cs).sort((
   return h}
 const JW=q=>'https://www.justwatch.com/ar/buscar?q='+encodeURIComponent(q||'');
 /* ===== carátulas, seguimiento por capítulos y Descubrir ===== */
+const MONO={netflix:'N',hbo:'HM',disney:'D+',prime:'PV',appletv:'A',crunchyroll:'CR',paramount:'P+'};
+const mono=(svc,n)=>MONO[svc]||String(n||'?').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const PCOL=['#3a2f22','#23323d','#3b2430','#26372c','#2f2a3f','#3d3420','#22303a','#3a2626','#2c3530'];
 const pcol=t=>{let h=0;for(const c of String(t||''))h=(h*31+c.charCodeAt(0))>>>0;return PCOL[h%PCOL.length]};
 const ICO={back:'<path d="M15 18l-6-6 6-6"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12l5 5 9-10"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'};
