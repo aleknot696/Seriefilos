@@ -66,7 +66,7 @@ nav.tabs a[aria-current=page]{color:var(--ink);font-weight:700}nav.tabs a[aria-c
 details summary{cursor:pointer;color:var(--mut);font-size:14px}
 s{color:var(--mut);font-weight:400}
 .pst{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--soft);border:1px solid #ffffff14}
-.pst img{width:100%;height:100%;object-fit:cover;display:block}
+.pst img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .pst>span{position:absolute;left:8px;right:8px;bottom:8px;font:700 13px/1.15 var(--disp);color:var(--ink);overflow-wrap:anywhere}
 .pst>em{position:absolute;top:6px;left:6px;max-width:calc(100% - 12px);background:#000c;color:var(--ink);border-radius:6px;padding:1px 6px;font:600 10.5px/1.5 system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:12px}
@@ -215,7 +215,7 @@ async function serCheck(x){if(!x.tvm)return;
   if(!P&&sh&&sh.status==='Ended')P={temp:n,estado:'terminada'};
   if(x.prox&&x.prox.manual&&(!P||P.estado!=='fecha'))P=x.prox;
   x.prox=P;x.chk=today();if(sh&&sh.image&&sh.image.medium&&!x.img)x.img=sh.image.medium;if(!x.svc&&sh){const s2=svcFromNet((sh.webChannel&&sh.webChannel.name)||(sh.network&&sh.network.name));if(s2)x.svc=s2}}
-async function serRefresh(force){const L=D.series.filter(x=>x.tvm&&(force||x.chk!==today()));if(!L.length)return;let err=0;
+async function serRefresh(force){const L=D.series.filter(x=>x.tvm&&(force||x.chk!==today()||!x.img));if(!L.length)return;let err=0;
   for(const x of L){try{await serCheck(x)}catch(e){err++}await new Promise(r=>setTimeout(r,350))}
   save();render();if(force)toast(err?'Algunas no se pudieron revisar (¿sin conexión?)':'Series actualizadas')}
 function serPlan(x){const P=x.prox;if(!P||!P.f)return '';const sv=catS()[x.svc],nm=sv?sv.n:'la plataforma',sub=D.subs.find(z=>z.svc===x.svc);
@@ -327,7 +327,7 @@ const PCOL=['#3a2f22','#23323d','#3b2430','#26372c','#2f2a3f','#3d3420','#22303a
 const pcol=t=>{let h=0;for(const c of String(t||''))h=(h*31+c.charCodeAt(0))>>>0;return PCOL[h%PCOL.length]};
 const ICO={back:'<path d="M15 18l-6-6 6-6"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12l5 5 9-10"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'};
 const ico=(k,s)=>'<svg width="'+(s||20)+'" height="'+(s||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICO[k]+'</svg>';
-function poster(img,t,bd){return '<div class="pst"'+(img?'':' style="background:'+pcol(t)+'"')+'>'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy">':'<span>'+esc(t)+'</span>')+(bd?'<em>'+esc(bd)+'</em>':'')+'</div>'}
+function poster(img,t,bd){return '<div class="pst" style="background:'+pcol(t)+'"><span>'+esc(t)+'</span>'+(img?'<img src="'+esc(img)+'" alt="" decoding="async" onerror="this.remove()">':'')+(bd?'<em>'+esc(bd)+'</em>':'')+'</div>'}
 const DSEM=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const fSem=f=>DSEM[dObj(f).getDay()]+' '+fDM(f);
 /* capítulos de TVmaze: se guardan en el celular y se renuevan una vez por día */
@@ -383,9 +383,13 @@ function vDet(){const x=D.watch.find(z=>z.id===S.det);if(!x){S.det=null;return v
     else h+='<button class="btn ghost" data-act="wlink">Buscar “'+esc(x.t)+'”</button>';h+='</div>'}
   h+='<div class="card" style="margin-top:14px"><label>Plataforma<select data-wsvc="'+i+'">'+svs.map(k=>'<option value="'+esc(k)+'"'+(x.svc===k?' selected':'')+'>'+esc(cs[k].n)+'</option>').join('')+'<option value=""'+(!x.svc?' selected':'')+'>Otra / no sé</option></select></label><div class="acts"><button class="btn ghost" data-act="wvisto">'+ico('check',18)+'Ya la vi</button><a class="btn ghost" href="'+esc(JW(x.t))+'" target="_blank" rel="noopener">JustWatch</a><button class="btn ghost" data-act="wdel" style="color:var(--bad)">Quitar</button></div></div>';
   return h+'<p class="foot">Datos: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA)</p>'}
-async function detLoad(x){const id=x.tvm;epBusy[id]=true;try{const e=await epLoad(id);progUpd(x,e);save();delete epBusy[id]}catch(err){epBusy[id]='err'}if(S.route==='paraver'&&S.det===x.id)render()}
+async function detLoad(x){const id=x.tvm;epBusy[id]=true;try{if(!x.img){try{const r=await fetchT(TVM+'/shows/'+id);if(r.ok){const sh=await r.json();if(sh.image&&sh.image.medium)x.img=sh.image.medium}}catch(e){}}const e=await epLoad(id);progUpd(x,e);save();delete epBusy[id]}catch(err){epBusy[id]='err'}if(S.route==='paraver'&&S.det===x.id)render()}
 /* progreso de toda la lista, sin apuro: una serie por vez */
-async function progRefresh(){for(const x of D.watch.filter(z=>!z.visto&&z.tvm&&(!z.prog||z.progd!==today()))){try{const e=await epLoad(x.tvm);progUpd(x,e);x.progd=today()}catch(err){break}await new Promise(r=>setTimeout(r,400))}save();if(S.route==='paraver'&&!S.det&&S.ptab!=='desc')render()}
+async function autoLink(){for(const x of D.watch.filter(z=>!z.visto&&!z.tvm&&!z.nolink&&(z.tipo||'Serie')!=='Película')){const q=x.t.replace(/\s*\(T\d+\)$/,'');
+    try{const r=await tvmSearch(q),m=r.find(s=>norm(s.name)===norm(q)||(s._es&&norm(s._es)===norm(q)));if(m){x.tvm=m.id;x.img=m.image&&m.image.medium||'';if(!x.svc)x.svc=svcFromNet((m.webChannel&&m.webChannel.name)||(m.network&&m.network.name))}else x.nolink=1}catch(e){break}
+    await new Promise(r=>setTimeout(r,600))}save()}
+let progBusy=false;
+async function progRefresh(){if(progBusy)return;progBusy=true;try{await autoLink();for(const x of D.watch.filter(z=>!z.visto&&z.tvm&&(!z.prog||z.progd!==today()))){try{const e=await epLoad(x.tvm);progUpd(x,e);x.progd=today()}catch(err){break}await new Promise(r=>setTimeout(r,400))}save();if(S.route==='paraver'&&!S.det&&S.ptab!=='desc')render()}finally{progBusy=false}}
 /* Descubrir: programación de TVmaze de los próximos 14 días, solo plataformas que hay en Argentina */
 const SCHMAP=[[/^netflix$/i,'netflix'],[/^(hbo|hbo max|max)$/i,'hbo'],[/^disney\+$/i,'disney'],[/prime video/i,'prime'],[/^apple tv/i,'appletv'],[/^crunchyroll$/i,'crunchyroll'],[/^paramount\+$/i,'paramount']];
 const svcSch=n=>{for(const[r,id] of SCHMAP)if(r.test(n||''))return catS()[id]?id:'';return ''};
@@ -487,7 +491,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
   if(d.unw!=null){D.watch[+d.unw].visto=false;save();render();return}
   if(d.delser!=null){const x=D.series[+d.delser];if(!await ask('¿Quitar “'+x.t+'”?','Quitar'))return;D.series.splice(+d.delser,1);save();render();return}
   if(d.wr!=null){const s=S.wres[+d.wr];S.wsel={name:s.name,id:s.id,img:s.image&&s.image.medium||'',svc:svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)),info:[s.premiered&&s.premiered.slice(0,4),(s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)].filter(Boolean).join(' · ')};render();return}
-  if(d.lr!=null){const x=D.watch.find(z=>z.id===S.det),s=S.lres[+d.lr];if(x&&s){x.tvm=s.id;x.img=s.image&&s.image.medium||'';x.tipo='Serie';if(!x.svc)x.svc=svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name));S.lres=null;save();render();toast('Listo: ya podés seguir los capítulos')}return}
+  if(d.lr!=null){const x=D.watch.find(z=>z.id===S.det),s=S.lres[+d.lr];if(x&&s){x.tvm=s.id;x.img=s.image&&s.image.medium||'';x.tipo='Serie';delete x.nolink;if(!x.svc)x.svc=svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name));S.lres=null;save();render();toast('Listo: ya podés seguir los capítulos')}return}
   if(d.wf!=null){S.wf=d.wf==='*'?null:d.wf;render();return}
   if(d.es!=null){S.dseas=+d.es;render();return}
   if(d.df!=null){S.df=d.df;render();return}
@@ -541,7 +545,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
 
 /* ===== arranque ===== */
 route();loadCat();setTimeout(()=>serRefresh(false),1500);setTimeout(progRefresh,4000);scheduleNotifs();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){subVencidas();render();serRefresh(false)}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){subVencidas();render();serRefresh(false);progRefresh()}});
 </script>
 </body>
 </html>
