@@ -178,6 +178,7 @@ function serEst(x){const P=x.prox,n=+x.ult+1,ch=x.chk?' <small class="mut">· re
 
 /* ===== notificaciones (Capacitor) ===== */
 const LN=(()=>{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;return(C.Plugins&&C.Plugins.LocalNotifications)||(C.registerPlugin&&C.registerPlugin('LocalNotifications'))})();
+const NAT=(()=>{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;const g=n=>(C.Plugins&&C.Plugins[n])||(C.registerPlugin&&C.registerPlugin(n));return{FS:g('Filesystem'),SH:g('Share')}})();
 const hid=s=>{let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)%2000000000+1};
 function notifPlan(){const out=[],now=Date.now(),at=(f,h)=>{const d=dObj(f);d.setHours(h||10,0,0,0);return d};
   const add=(key,f,title,body)=>{const d=at(f);if(d.getTime()>now+60000)out.push({id:hid(key),title,body,isExactNotification:false,schedule:{at:d,allowWhileIdle:true}})};
@@ -299,7 +300,7 @@ function vPromos(){$('#hero').innerHTML='';const cs=catS(),L=[];Object.keys(cs).
 function vAjustes(){$('#hero').innerHTML='';
   return '<div class="card"><h2>Avisos</h2><div class="form" style="margin-top:10px"><label>Avisarme de estrenos (días antes)<input inputmode="numeric" data-cfg="avisoEstreno" value="'+esc(D.avisoEstreno)+'"></label><label>Avisarme de cortes (días antes)<input inputmode="numeric" data-cfg="aviso" value="'+esc(D.aviso)+'"></label></div>'+(LN?'<div class="acts"><button class="btn ghost" data-act="notifs">'+(D.notifOk?'Revisar permiso de notificaciones':'Activar notificaciones')+'</button></div>':'')+'</div>'+
    '<div class="card"><h2>Dólar</h2><p class="hint">Para las plataformas que cobran en dólares uso el dólar oficial más '+esc(rec())+'% de impuestos. Hoy: '+fmt(dolar())+'.</p><div class="form"><label>Usar otro valor (0 = automático)<input inputmode="numeric" data-cfg="dolarManual" value="'+esc(D.dolarManual||0)+'"></label></div></div>'+
-   '<div class="card"><h2>Tus datos</h2><p class="hint">Todo queda guardado solo en este celular. Hacé una copia si vas a cambiar de teléfono.</p><div class="acts"><button class="btn ghost" data-act="exp">Exportar copia</button><label class="btn ghost" style="flex-direction:row;color:var(--ink);font-size:16px">Importar copia<input type="file" accept="application/json,.json" data-imp hidden></label><button class="btn ghost" data-act="borrar" style="color:var(--bad)">Borrar todo</button></div></div>'+
+   '<div class="card"><h2>Tus datos</h2><p class="hint">Todo queda guardado solo en este celular. Hacé una copia si vas a cambiar de teléfono.</p><div class="acts"><button class="btn ghost" data-act="exp">Exportar copia</button><label class="btn ghost" style="flex-direction:row;color:var(--ink);font-size:16px">Importar copia<input type="file" accept="application/json,.json,text/plain,application/octet-stream" data-imp hidden></label><button class="btn ghost" data-act="borrar" style="color:var(--bad)">Borrar todo</button></div></div>'+
    '<div class="card"><h2>Acerca de</h2><p class="hint" style="margin-top:6px">Seriéfilos '+VERSION+'. Precios y promos de referencia para Argentina, revisados una vez por mes; pueden variar. Datos de series de TVmaze (CC BY-SA). Búsquedas en JustWatch. Seriéfilos no está afiliada a ninguna plataforma.</p><a class="btn ghost" href="https://aleknot696.github.io/Seriefilos/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a></div>'}
 const VIEWS={inicio:vInicio,plataformas:vPlataformas,paraver:vParaver,series:vSeries,promos:vPromos,ajustes:vAjustes};
 function render(){
@@ -362,7 +363,13 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
       if(x.tvm){try{await serCheck(x);save();render()}catch(err){}}toast('Agregada');break}
     case 'serref':toast('Revisando…');serRefresh(true);break;
     case 'sertow':{const x=C.series[+d.i],P=x.prox||{},tp=P.temp||+x.ult+1;C.watch.push({id:uid(),t:x.t+' (T'+tp+')',svc:x.svc,tipo:'Serie'});x.ult=tp;x.prox=null;delete x.chk;save();render();toast('En “Para ver”. Queda en espera de la T'+(tp+1));if(x.tvm)serCheck(x).then(()=>{save();render()}).catch(()=>{});break}
-    case 'exp':{const txt=JSON.stringify({app:'seriefilos',version:1,exportado:new Date().toISOString(),datos:D},null,1),blob=new Blob([txt],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='seriefilos-copia-'+today()+'.json';document.body.append(a);a.click();a.remove();
+    case 'exp':{const txt=JSON.stringify({app:'seriefilos',version:1,exportado:new Date().toISOString(),datos:D},null,1),nom='seriefilos-copia-'+today()+'.json';
+      if(NAT){/* En Android: se guarda en la app y se abre "Compartir" para mandarla a Drive, mail, WhatsApp o Archivos */
+        try{const w=await NAT.FS.writeFile({path:nom,data:txt,directory:'CACHE',encoding:'utf8'});
+          try{await NAT.SH.share({title:'Copia de Seriéfilos',text:'Copia de mis datos de Seriéfilos ('+today()+')',files:[w.uri],dialogTitle:'Guardar o enviar la copia'})}catch(x){if(!/cancel/i.test(String(x&&x.message||x)))throw x;break}
+          toast('Copia lista')}catch(x){try{await navigator.clipboard.writeText(txt);toast('No se pudo crear el archivo: la copia quedó en el portapapeles')}catch(y){toast('No se pudo exportar la copia')}}
+        break}
+      const blob=new Blob([txt],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nom;document.body.append(a);a.click();a.remove();
       try{await navigator.clipboard.writeText(txt)}catch(x){}toast('Copia exportada');break}
     case 'borrar':if(await ask('¿Borrar todos tus datos de Seriéfilos? No se puede deshacer.','Borrar todo')){D=D0();save();render();toast('Datos borrados')}break}});
 
