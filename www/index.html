@@ -91,6 +91,7 @@ s{color:var(--mut);font-weight:400}
 .hrow{display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}.hrow>div{width:104px;flex:none}
 .meta{display:flex;align-items:flex-start;gap:4px;margin-top:6px}.meta small{flex:1;color:var(--mut);font-size:12px;line-height:1.3}
 .hrow>div>a{display:block;color:inherit;text-decoration:none}
+.pst.more{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--amb);background:var(--card);padding:0;cursor:pointer}.pst.more span{position:static;font:700 14px/1.2 system-ui,sans-serif;color:var(--amb)}
 .add{width:36px;height:36px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--amb);display:flex;align-items:center;justify-content:center;padding:0;flex:none}.add:disabled{color:var(--ok);cursor:default}
 .hero2{position:relative;height:196px;border-radius:14px;overflow:hidden;background:var(--soft) center 22%/cover no-repeat;border:1px solid #ffffff14;display:flex;flex-direction:column;justify-content:space-between;padding:12px 14px}
 .hero2:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 25%,#000000e6)}
@@ -152,7 +153,7 @@ const D0=()=>({subs:[],watch:[],series:[],aviso:7,avisoEstreno:7,dolarManual:0,i
 let D=D0();try{D=Object.assign(D0(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
 D.watch.forEach(w=>{if(!w.id)w.id=uid()});
 let CAT=null;try{CAT=JSON.parse(localStorage.getItem(KCAT)||'null')}catch(e){}
-const S={route:'inicio',pf:null,bj:null,nw:{t:'',svc:'',tipo:'Serie'},jw:'',ns:'',np:'',nc:{n:'',m:'',mon:'ARS'},sq:'',sres:null,sbusy:false,ssel:null,sult:'1',wq:'',wres:null,wbusy:false,wsel:null,wman:false,wf:null,det:null,ptab:'lista',dseas:null,lres:null,lbusy:false,df:null,dbusy:false,derr:false,sadd:false};
+const S={tsel:'all',route:'inicio',pf:null,bj:null,nw:{t:'',svc:'',tipo:'Serie'},jw:'',ns:'',np:'',nc:{n:'',m:'',mon:'ARS'},sq:'',sres:null,sbusy:false,ssel:null,sult:'1',wq:'',wres:null,wbusy:false,wsel:null,wman:false,wf:null,det:null,ptab:'lista',dseas:null,lres:null,lbusy:false,df:null,dbusy:false,derr:false,sadd:false};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('No se pudo guardar')}scheduleNotifs()}
 
 /* ===== catálogo (precios y promos) ===== */
@@ -418,25 +419,31 @@ function vDesc(){if(!DESC||DESC.d!==today()||DESC.n<14){if(!S.dbusy&&!S.derr)set
   const enL=new Set(D.watch.filter(w=>w.tvm).map(w=>w.tvm)),it=((DESC&&DESC.d===today())?DESC.it:[]).filter(z=>!solo||mias.has(z.svc)),hoy=today(),f7=addD(hoy,0,6);
   const grp=(L,lab)=>{const m=new Map();L.sort((a,b)=>a.f<b.f?-1:a.f>b.f?1:b.w-a.w||a.s-b.s||a.e-b.e).forEach(z=>{if(!m.has(z.sid))m.set(z.sid,z)});return[...m.values()].slice(0,20).map(z=>'<div><a href="#info/t'+z.sid+'" aria-label="Ver ficha de '+esc(z.n)+'">'+poster(z.img,z.n,svcName(z.svc))+'</a><div class="meta"><small>'+lab(z)+'</small>'+(enL.has(z.sid)?'<button class="add" disabled aria-label="'+esc(z.n)+' ya está en tu lista">'+ico('check',16)+'</button>':'<button class="add" data-dadd="'+z.sid+'" aria-label="Agregar '+esc(z.n)+' a Para ver">'+ico('plus',16)+'</button>')+'</div></div>').join('')};
   const r1=grp(it.filter(z=>z.f>=hoy&&z.f<=f7),z=>esc(fSem(z.f))+'<br>'+(z.e===1?(z.s===1?'Estreno':'T'+z.s+' · estreno'):'T'+z.s+'E'+z.e)),r2=grp(it.filter(z=>z.f>=hoy&&z.e===1&&z.s>1),z=>'T'+z.s+' · '+fDM(z.f));
-  const tsv=solo?[...mias]:Object.keys(catS()),tk=tsv.map(k=>TPROV[k]).filter(Boolean).sort((a,b)=>a-b).join('|');if(TMDB_OK&&!(TOP&&TOP.d===today()&&TOP.k===tk)&&!S.tbusy&&!S.terr)setTimeout(()=>topLoad(tsv),0);
-  const enT=new Set(D.watch.map(w=>w.tmdb).filter(Boolean)),r3=(TOP&&TOP.k===tk?TOP.it:[]).map(z=>'<div><a href="#info/m'+z.id+'" aria-label="Ver ficha de '+esc(z.n)+'">'+poster(z.img,z.n,'★ '+String(z.v.toFixed(1)).replace('.',','))+'</a><div class="meta"><small>'+esc(z.y||'')+'</small>'+(enT.has(z.id)?'<button class="add" disabled aria-label="'+esc(z.n)+' ya está en tu lista">'+ico('check',16)+'</button>':'<button class="add" data-tadd="'+z.id+'" aria-label="Agregar '+esc(z.n)+' a Para ver">'+ico('plus',16)+'</button>')+'</div></div>').join('');
+  const tall=(solo?[...mias]:Object.keys(catS())).filter(k=>TPROV[k]).sort((a,b)=>svcName(a).localeCompare(svcName(b)));if(S.tsel!=='all'&&!tall.includes(S.tsel))S.tsel='all';
+  const tsv=S.tsel==='all'?tall:[S.tsel],tk=topKey(tsv),TL=TOP.d===today()?TOP.l[tk]:null;if(TMDB_OK&&tk&&!TL&&!S.tbusy&&!S.terr)setTimeout(()=>topLoad(tsv),0);
+  const tchips=tall.length>1?'<div class="chips" role="group" aria-label="Plataforma del ranking"><button class="chip" data-tp="all" aria-pressed="'+(S.tsel==='all')+'">'+(solo?'Todas las mías':'Todas')+'</button>'+tall.map(k=>'<button class="chip" data-tp="'+k+'" aria-pressed="'+(S.tsel===k)+'">'+esc(svcName(k))+'</button>').join('')+'</div>':'';
+  const enT=new Set(D.watch.map(w=>w.tmdb).filter(Boolean)),r3=(TL?TL.it:[]).map(z=>'<div><a href="#info/m'+z.id+'" aria-label="Ver ficha de '+esc(z.n)+'">'+poster(z.img,z.n,'★ '+String(z.v.toFixed(1)).replace('.',','))+'</a><div class="meta"><small>'+esc(z.y||'')+'</small>'+(enT.has(z.id)?'<button class="add" disabled aria-label="'+esc(z.n)+' ya está en tu lista">'+ico('check',16)+'</button>':'<button class="add" data-tadd="'+z.id+'" aria-label="Agregar '+esc(z.n)+' a Para ver">'+ico('plus',16)+'</button>')+'</div></div>').join('')+(TL&&TL.p<TL.tp?'<div><button class="pst more" data-act="topmore"'+(S.tbusy?' disabled':'')+'>'+(S.tbusy?'<span>Cargando…</span>':ico('plus',22)+'<span>Ver más</span>')+'</button></div>':'');
   const prog=S.dbusy?'<p class="mut" style="font-size:13px">Buscando estrenos… ('+(DESC?DESC.n:0)+' de 14 días)</p>':'';
   const row=(t,sub,html,vac)=>'<section class="dsec"><h2>'+t+'</h2><p class="hint">'+sub+'</p>'+(html?'<div class="hrow">'+html+'</div>':'<p class="mut" style="font-size:14px">'+(S.dbusy?'Buscando…':vac)+'</p>')+'</section>';
   return(mias.size?'<div class="chips" role="group" aria-label="Plataformas"><button class="chip" data-df="mias" aria-pressed="'+(S.df==='mias')+'">En mis plataformas</button><button class="chip" data-df="todas" aria-pressed="'+(S.df==='todas')+'">Todas</button></div>':'')+prog+
    (S.derr&&!S.dbusy?'<div class="alert"><p>No pude traer toda la programación (¿sin conexión?).</p><div class="acts"><button class="btn sm" data-act="dretry">Reintentar</button></div></div>':'')+
    row('Estrenan esta semana','Episodios y temporadas nuevas '+(solo?'en lo que ya pagás':'en las plataformas que hay en Argentina')+'.',r1,'No encontré estrenos para estos días.')+
    row('Vuelven pronto','Temporadas nuevas que se estrenan en las próximas dos semanas.',r2,'No hay temporadas nuevas en estas dos semanas.')+
-   (TMDB_OK?'':'<!-- sin clave de TMDB -->')+(!TMDB_OK?'':row('Mejor puntuadas','Según los usuarios de TMDB, '+(solo?'en tus plataformas':'en las plataformas que hay en Argentina')+'.',r3,S.tbusy?'Buscando…':S.terr?'No pude traer la lista (¿sin conexión?).':'No encontré series.'))+
+   (TMDB_OK?'':'<!-- sin clave de TMDB -->')+(!TMDB_OK?'':'<section class="dsec"><h2>Mejor puntuadas</h2><p class="hint">Según los usuarios de TMDB, '+(S.tsel!=='all'?'en '+esc(svcName(S.tsel)):solo?'en tus plataformas':'en las plataformas que hay en Argentina')+(TL&&TL.it.length?' · '+TL.it.length+' series':'')+'.</p>'+tchips+(r3?'<div class="hrow">'+r3+'</div>':'<p class="mut" style="font-size:14px">'+(S.tbusy?'Buscando…':S.terr?'No pude traer la lista (¿sin conexión?).':'No encontré series.')+'</p>')+(S.terr&&r3?'<p class="mut" style="font-size:13px">No pude traer más (¿sin conexión?).</p>':'')+'</section>')+
    '<p class="foot">Programación: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA) · Mejor puntuadas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a> · Dónde ver: <a href="https://www.justwatch.com/ar" target="_blank" rel="noopener">JustWatch</a></p>'}
 /* Mejor puntuadas: TMDB (disponibilidad por plataforma en Argentina: JustWatch). Esta app usa la API de TMDB pero no está avalada ni certificada por TMDB. */
 const TMDB='https://api.themoviedb.org/3',TMDB_KEY='__TMDB_KEY__',TIMG='https://image.tmdb.org/t/p/w185';
 const TMDB_OK=!TMDB_KEY.startsWith('__');
 const TPROV={netflix:8,disney:337,prime:119,appletv:350,crunchyroll:283,paramount:531,hbo:1899};
-const KTOP='seriefilos:top';let TOP=null;try{TOP=JSON.parse(localStorage.getItem(KTOP)||'null')}catch(e){}
-async function topLoad(svcs){const ids=svcs.map(k=>TPROV[k]).filter(Boolean).sort((a,b)=>a-b),key=ids.join('|');if(!ids.length){TOP={d:today(),k:key,it:[]};return}
-  if(S.tbusy||(TOP&&TOP.d===today()&&TOP.k===key))return;S.tbusy=true;S.terr=false;
-  try{const r=await fetchT(TMDB+'/discover/tv?api_key='+TMDB_KEY+'&language=es-AR&watch_region=AR&with_watch_monetization_types=flatrate&with_watch_providers='+encodeURIComponent(key)+'&without_genres=10763|10767&sort_by=vote_average.desc&vote_count.gte=300&page=1',10000);if(!r.ok)throw 0;
-    const j=await r.json();TOP={d:today(),k:key,it:(j.results||[]).slice(0,20).map(x=>({id:x.id,n:x.name,img:x.poster_path?TIMG+x.poster_path:'',v:+x.vote_average||0,y:(x.first_air_date||'').slice(0,4)}))};try{localStorage.setItem(KTOP,JSON.stringify(TOP))}catch(e){}}
+const KTOP='seriefilos:top2';let TOP=null;try{TOP=JSON.parse(localStorage.getItem(KTOP)||'null')}catch(e){}if(!TOP||TOP.d!==today())TOP={d:today(),l:{}};
+const topKey=svcs=>svcs.map(k=>TPROV[k]).filter(Boolean).sort((a,b)=>a-b).join('|');
+const topFind=id=>{for(const k in TOP.l){const z=TOP.l[k].it.find(q=>q.id===id);if(z)return z}return null};
+/* rankings de TMDB por plataforma (o varias juntas), de a 20; "Ver más" trae la página siguiente (hasta 100) */
+async function topLoad(svcs,more){const key=topKey(svcs);if(!key||S.tbusy)return;if(TOP.d!==today())TOP={d:today(),l:{}};const Lx=TOP.l[key];if(Lx&&!more)return;if(more&&(!Lx||Lx.p>=Lx.tp))return;
+  S.tbusy=true;S.terr=false;if(more&&S.route==='paraver'&&S.ptab==='desc'&&!S.det)render();const pg=more?Lx.p+1:1;
+  try{const r=await fetchT(TMDB+'/discover/tv?api_key='+TMDB_KEY+'&language=es-AR&watch_region=AR&with_watch_monetization_types=flatrate&with_watch_providers='+encodeURIComponent(key)+'&without_genres=10763|10767&sort_by=vote_average.desc&vote_count.gte=300&page='+pg,10000);if(!r.ok)throw 0;
+    const j=await r.json(),nv=(j.results||[]).map(x=>({id:x.id,n:x.name,img:x.poster_path?TIMG+x.poster_path:'',v:+x.vote_average||0,y:(x.first_air_date||'').slice(0,4)})),prev=more?Lx.it:[],ids=new Set(prev.map(z=>z.id));
+    TOP.l[key]={it:prev.concat(nv.filter(z=>!ids.has(z.id))),p:pg,tp:Math.min(+j.total_pages||1,5)};try{localStorage.setItem(KTOP,JSON.stringify(TOP))}catch(e){}}
   catch(e){S.terr=true}S.tbusy=false;if(S.route==='paraver'&&S.ptab==='desc'&&!S.det)render()}
 async function topAdd(z,mias){toast('Agregando “'+z.n+'”…');let tvm=null,img=z.img,svc='';
   try{const r=await fetchT(TMDB+'/tv/'+z.id+'/external_ids?api_key='+TMDB_KEY);if(r.ok){const e=await r.json();for(const u of[e.tvdb_id&&TVM+'/lookup/shows?thetvdb='+e.tvdb_id,e.imdb_id&&TVM+'/lookup/shows?imdb='+e.imdb_id].filter(Boolean)){try{const q=await fetchT(u);if(q.ok){const sh=await q.json();if(sh&&sh.id){tvm=sh.id;if(sh.image&&sh.image.medium)img=sh.image.medium;break}}}catch(x){}}}}catch(x){}
@@ -457,7 +464,7 @@ async function infoLoad(k,id){const key=k+id;if(INF[key])return;INF[key]={cargan
     const ex=sh.externals||{};if(TMDB_OK&&(ex.imdb||ex.thetvdb)){try{const q=await fetchT(TMDB+'/find/'+(ex.imdb||ex.thetvdb)+'?api_key='+TMDB_KEY+'&language=es-AR&external_source='+(ex.imdb?'imdb_id':'tvdb_id'));if(q.ok){const t=((await q.json()).tv_results||[])[0];if(t){const es=await tmdbTv(t.id);if(es.ov&&!es.en){I.ov=es.ov;I.en=false}if(es.gen.length)I.gen=es.gen;if(es.n)I.nes=es.n}}}catch(e){}}}
   INF[key]=I}catch(e){INF[key]={err:1}}
   if(S.info&&S.info.k===k&&S.info.id===id)render()}
-function vInfo(){const{k,id}=S.info,I=INF[k+id],z=k==='m'?(TOP&&TOP.it.find(q=>q.id===id)):(DESC&&DESC.it.find(q=>q.sid===id));if(!I)setTimeout(()=>infoLoad(k,id),0);
+function vInfo(){const{k,id}=S.info,I=INF[k+id],z=k==='m'?topFind(id):(DESC&&DESC.it.find(q=>q.sid===id));if(!I)setTimeout(()=>infoLoad(k,id),0);
   const n=(I&&(I.nes||I.n))||(z&&z.n)||'Serie',img=(z&&z.img)||(I&&I.img)||'',svc=z&&z.svc,w=D.watch.find(x=>k==='m'?x.tmdb===id:x.tvm===id);
   let h='<a class="back" href="#descubrir">'+ico('back')+'Descubrir</a><div class="det">'+poster(img,n,svc?svcName(svc):'')+'<div style="flex:1;min-width:0"><h2 style="font-size:24px">'+esc(n)+'</h2>';
   if(I&&!I.cargando&&!I.err){const v=I.v||(z&&z.v)||0;h+='<p class="mut" style="margin:4px 0 0;font-size:13px">'+esc([I.y,I.temps?pl(I.temps,'temporada'):'',I.est].filter(Boolean).join(' · '))+'</p>'+(I.gen.length?'<p class="mut" style="margin:2px 0 0;font-size:13px">'+esc(I.gen.join(', '))+'</p>':'')+(v?'<p style="margin:8px 0 0;font-weight:700"><span style="color:var(--amb)">★</span> '+String(v.toFixed(1)).replace('.',',')+'<small class="mut" style="font-weight:400"> / 10</small></p>':'')}
@@ -546,7 +553,8 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
   if(d.wf!=null){S.wf=d.wf==='*'?null:d.wf;render();return}
   if(d.es!=null){S.dseas=+d.es;render();return}
   if(d.df!=null){S.df=d.df;S.terr=false;render();return}
-  if(d.tadd!=null){const z=TOP&&TOP.it.find(q=>q.id===+d.tadd);if(z){b.disabled=true;topAdd(z,new Set(D.subs.filter(x=>x.svc).map(x=>x.svc)))}return}
+  if(d.tp!=null){S.tsel=d.tp;S.terr=false;render();return}
+  if(d.tadd!=null){const z=topFind(+d.tadd);if(z){b.disabled=true;topAdd(z,new Set(D.subs.filter(x=>x.svc).map(x=>x.svc)))}return}
   if(d.dadd!=null){const z=DESC&&DESC.it.find(q=>q.sid===+d.dadd);if(!z||D.watch.some(w=>w.tvm===z.sid))return;D.watch.push({id:uid(),t:z.n,svc:z.svc,tipo:'Serie',tvm:z.sid,img:z.img});save();render();toast('“'+z.n+'” agregada a tu lista');return}
   if(d.sr!=null){const s=S.sres[+d.sr];S.ssel={name:s.name,id:s.id,img:s.image&&s.image.medium||'',premiered:s.premiered,svc:svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)),temps:null,cargando:true};S.sult='1';render();
     const sel=S.ssel;serTemps(s.id).then(n=>{sel.temps=n;if(n)S.sult=String(n)}).catch(()=>{}).finally(()=>{sel.cargando=false;if(S.ssel===sel)render()});return}
@@ -576,6 +584,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
     case 'wvisto':{const x=C.watch.find(z=>z.id===S.det);if(!x)break;x.visto=true;save();location.hash='paraver';toast('Marcada como vista');break}
     case 'wdel':{const x=C.watch.find(z=>z.id===S.det);if(!x||!await ask('¿Quitar “'+x.t+'” de tu lista?','Quitar'))break;C.watch.splice(C.watch.indexOf(x),1);save();location.hash='paraver';break}
     case 'wlink':{const x=C.watch.find(z=>z.id===S.det);if(!x)break;S.lbusy=true;render();try{S.lres=await tvmSearch(x.t.replace(/\s*\(T\d+\)$/,''))}catch(err){S.lres=[];toast('Sin conexión')}S.lbusy=false;render();break}
+    case 'topmore':{const mias=new Set(D.subs.filter(x=>x.svc).map(x=>x.svc)),tall=(S.df==='mias'&&mias.size?[...mias]:Object.keys(catS())).filter(k=>TPROV[k]);S.terr=false;topLoad(S.tsel==='all'?tall:[S.tsel],true);break}
     case 'infretry':if(S.info){delete INF[S.info.k+S.info.id];render()}break;
     case 'dretry':S.derr=false;S.terr=false;descLoad();render();break;
     case 'saddopen':S.sadd=true;render();break;
