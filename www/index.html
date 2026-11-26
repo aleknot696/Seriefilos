@@ -149,7 +149,25 @@ const svcName=svc=>svc&&catS()[svc]?catS()[svc].n:(svc?svc:'Otra plataforma');
 const TVM='https://api.tvmaze.com';
 const NETMAP=[[/netflix/i,'netflix'],[/hbo|^max$/i,'hbo'],[/disney/i,'disney'],[/prime|amazon/i,'prime'],[/apple/i,'appletv'],[/crunchyroll/i,'crunchyroll'],[/paramount/i,'paramount'],[/star\+/i,'disney']];
 const svcFromNet=n=>{for(const[r,id] of NETMAP)if(r.test(n||''))return catS()[id]?id:'';return ''};
-async function tvmSearch(q){const r=await fetch(TVM+'/search/shows?q='+encodeURIComponent(q));if(!r.ok)throw 0;return(await r.json()).slice(0,6).map(x=>x.show)}
+/* Búsqueda por nombre en español (u otro idioma): Wikidata da el título traducido y el código de IMDb, y con ese código TVmaze devuelve la serie exacta */
+const WD='https://www.wikidata.org/w/api.php?format=json&origin=*&';
+const fetchT=(u,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||7000);return fetch(u,{signal:c.signal}).finally(()=>clearTimeout(t))};
+async function wdSearch(q){
+  const r=await fetchT(WD+'action=wbsearchentities&type=item&limit=8&language=es&uselang=es&search='+encodeURIComponent(q));if(!r.ok)return[];
+  const L=((await r.json()).search||[]);if(!L.length)return[];
+  const e=await fetchT(WD+'action=wbgetentities&props=claims&ids='+L.map(x=>x.id).join('|'));if(!e.ok)return[];const ents=(await e.json()).entities||{};
+  const imdb=L.map(x=>{const c=ents[x.id]&&ents[x.id].claims&&ents[x.id].claims.P345,v=c&&c[0]&&c[0].mainsnak&&c[0].mainsnak.datavalue&&c[0].mainsnak.datavalue.value;return v&&/^tt\d+$/.test(v)?{tt:v,es:x.label}:null}).filter(Boolean).slice(0,4);
+  const out=await Promise.all(imdb.map(async m=>{try{const s=await fetchT(TVM+'/lookup/shows?imdb='+m.tt);if(!s.ok)return null;const sh=await s.json();if(sh&&sh.id&&m.es&&m.es.toLowerCase()!==String(sh.name).toLowerCase())sh._es=m.es;return sh&&sh.id?sh:null}catch(x){return null}}));
+  return out.filter(Boolean)}
+async function tvmSearch(q){
+  const[a,b]=await Promise.allSettled([fetchT(TVM+'/search/shows?q='+encodeURIComponent(q)).then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>j.map(x=>x.show)),wdSearch(q)]);
+  if(a.status==='rejected'&&b.status==='rejected')throw 0;
+  const tv=a.status==='fulfilled'?a.value:[],wd=b.status==='fulfilled'?b.value:[];
+  /* si TVmaze ya tiene una coincidencia exacta con lo escrito, va primero; si no, primero las encontradas por el nombre traducido */
+  const nq=norm(q),exact=tv.filter(x=>norm(x.name)===nq),seen=new Set(),res=[];
+  for(const x of[...exact,...wd,...tv])if(x&&!seen.has(x.id)){seen.add(x.id);res.push(x)}
+  return res.slice(0,8)}
+const norm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 /* temporadas ya emitidas (con estreno hasta hoy) */
 async function serTemps(id){if(!id)return 0;const r=await fetch(TVM+'/shows/'+id+'/seasons');if(!r.ok)throw 0;const hoy=today();
   return(await r.json()).filter(z=>z.premiereDate&&z.premiereDate<=hoy&&+z.number>0).reduce((m,z)=>Math.max(m,+z.number),0)}
@@ -283,9 +301,9 @@ function vSeries(){$('#hero').innerHTML='';const cs=catS(),L=D.series;
   let h='<div class="card"><h2>Agregar serie en espera</h2><p class="hint">Las que viste hasta una temporada y esperan la siguiente. Busco la fecha de estreno y te aviso cuándo activar la plataforma.</p>';
   if(S.ssel){const s=S.ssel,svs=Object.keys(cs).sort((a,b)=>cs[a].n.localeCompare(cs[b].n));const g=s.svc;
     h+='<p style="margin:0 0 8px"><b>'+esc(s.name)+'</b>'+(s.premiered?' ('+s.premiered.slice(0,4)+')':'')+'</p><div class="form"><label>Vi hasta la temporada'+(s.cargando?'<select disabled><option>Buscando temporadas…</option></select>':s.temps?'<select data-sult>'+Array.from({length:s.temps},(_,k)=>k+1).reverse().map(k=>'<option value="'+k+'"'+(String(k)===String(S.sult)?' selected':'')+'>Temporada '+k+(k===s.temps?' (la última emitida)':'')+'</option>').join('')+'</select>':'<input inputmode="numeric" data-sult value="'+esc(S.sult)+'">')+'</label><label>Plataforma<select data-ssvc>'+svs.map(k=>'<option value="'+esc(k)+'"'+(g===k?' selected':'')+'>'+esc(cs[k].n)+'</option>').join('')+'<option value=""'+(!g?' selected':'')+'>Otra / no sé</option></select></label><button class="btn" data-act="seradd"'+(s.cargando?' disabled':'')+'>Agregar</button><button class="btn ghost" data-act="sercancel">Cancelar</button></div>'}
-  else{h+='<form data-ss class="form"><label class="w">Nombre de la serie<input data-sq value="'+esc(S.sq)+'" placeholder="Ej: The Last of Us" enterkeyhint="search"></label><button class="btn" type="submit">Buscar</button></form><p class="mut" style="font-size:13px;margin:8px 0 0">Si no aparece, probá con el nombre original (en inglés).</p>';
+  else{h+='<form data-ss class="form"><label class="w">Nombre de la serie<input data-sq value="'+esc(S.sq)+'" placeholder="Ej: The Last of Us" enterkeyhint="search"></label><button class="btn" type="submit">Buscar</button></form><p class="mut" style="font-size:13px;margin:8px 0 0">Podés escribirla en español o con su nombre original.</p>';
     if(S.sbusy)h+='<p class="mut">Buscando…</p>';
-    else if(S.sres)h+=S.sres.length?S.sres.map((s,j)=>'<button class="res" data-sr="'+j+'">'+(s.image&&s.image.medium?'<img src="'+esc(s.image.medium)+'" alt="" loading="lazy">':'<img alt="">')+'<span><b>'+esc(s.name)+'</b><br><small class="mut">'+esc([s.premiered&&s.premiered.slice(0,4),(s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)].filter(Boolean).join(' · '))+'</small></span></button>').join('')+'<p style="margin:10px 0 0"><button class="btn ghost sm" data-act="sermanual">No está: cargarla a mano</button></p>':'<p class="mut">No encontré resultados.</p><button class="btn ghost sm" data-act="sermanual">Cargarla a mano</button>'}
+    else if(S.sres)h+=S.sres.length?S.sres.map((s,j)=>'<button class="res" data-sr="'+j+'">'+(s.image&&s.image.medium?'<img src="'+esc(s.image.medium)+'" alt="" loading="lazy">':'<img alt="">')+'<span><b>'+esc(s.name)+'</b>'+(s._es?' <small class="mut">('+esc(s._es)+')</small>':'')+'<br><small class="mut">'+esc([s.premiered&&s.premiered.slice(0,4),(s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)].filter(Boolean).join(' · '))+'</small></span></button>').join('')+'<p style="margin:10px 0 0"><button class="btn ghost sm" data-act="sermanual">No está: cargarla a mano</button></p>':'<p class="mut">No encontré resultados.</p><button class="btn ghost sm" data-act="sermanual">Cargarla a mano</button>'}
   h+='</div>';
   const ord=L.map((x,i)=>[x,i]).sort((a,b)=>{const fa=a[0].prox&&a[0].prox.f||'9',fb=b[0].prox&&b[0].prox.f||'9';return fa<fb?-1:fa>fb?1:0});
   h+='<div class="card"><header><h2>En espera</h2>'+(L.some(x=>x.tvm)?'<button class="btn ghost sm" data-act="serref">Actualizar</button>':'')+'</header>'+(L.length?'':'<p class="empty">Todavía no agregaste series.</p>')+
