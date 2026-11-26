@@ -15,9 +15,15 @@ Rotá tus plataformas de streaming, no te pierdas estrenos y ahorrá cada mes.
 • Te avisa antes de que se corte, si todavía tenés algo pendiente para ver ahí.
 
 📝 PARA VER
-• Armá tu lista de series, películas y animes con la plataforma donde están.
+• Armá tu lista de series, películas y animes, con sus carátulas y la plataforma donde están.
+• Seguí cada serie capítulo por capítulo: sabés por dónde vas y cuántos te faltan.
+• Si una plataforma se corta pronto, te dice cuántos capítulos por día tenés que ver para terminar a tiempo.
 • Buscá en qué plataforma está cada título con un toque (JustWatch).
 • La app te sugiere qué plataforma activar el mes que viene según lo que tenés pendiente.
+
+🔎 DESCUBRIR
+• Lo que se estrena esta semana y las temporadas que vuelven pronto, en las plataformas que ya pagás.
+• Agregalo a tu lista con un toque.
 
 ⏳ SERIES EN ESPERA
 • ¿Viste una temporada y la próxima sale en un año? Agregala y Seriéfilos busca la fecha de estreno.
@@ -30,7 +36,7 @@ Rotá tus plataformas de streaming, no te pierdas estrenos y ahorrá cada mes.
 🔒 PRIVACIDAD
 Sin cuentas, sin publicidad y sin seguimiento. Tus datos quedan solo en tu teléfono.
 
-Seriéfilos no está afiliada a Netflix, Disney, Warner Bros. Discovery, Amazon, Apple, Crunchyroll ni a ninguna otra plataforma. Los nombres se usan solo para identificar cada servicio. Datos de series: TVmaze (CC BY-SA).
+Seriéfilos no está afiliada a Netflix, Disney, Warner Bros. Discovery, Amazon, Apple, Crunchyroll, Paramount ni a ninguna otra plataforma. Los nombres se usan solo para identificar cada servicio. Datos de series: TVmaze (CC BY-SA).
 
 **Categoría:** Entretenimiento
 **Etiquetas sugeridas:** streaming, series, ahorro
