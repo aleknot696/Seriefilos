@@ -2,8 +2,8 @@
   "appId": "ar.seriefilos.app",
   "appName": "Seriéfilos",
   "webDir": "www",
-  "android": { "backgroundColor": "#1b1033" },
+  "android": { "backgroundColor": "#0b0b0c" },
   "plugins": {
-    "LocalNotifications": { "smallIcon": "ic_stat_seriefilos", "iconColor": "#FFB547" }
+    "LocalNotifications": { "smallIcon": "ic_stat_seriefilos", "iconColor": "#FFD23F" }
   }
 }
