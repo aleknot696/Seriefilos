@@ -150,6 +150,9 @@ const TVM='https://api.tvmaze.com';
 const NETMAP=[[/netflix/i,'netflix'],[/hbo|^max$/i,'hbo'],[/disney/i,'disney'],[/prime|amazon/i,'prime'],[/apple/i,'appletv'],[/crunchyroll/i,'crunchyroll'],[/paramount/i,'paramount'],[/star\+/i,'disney']];
 const svcFromNet=n=>{for(const[r,id] of NETMAP)if(r.test(n||''))return catS()[id]?id:'';return ''};
 async function tvmSearch(q){const r=await fetch(TVM+'/search/shows?q='+encodeURIComponent(q));if(!r.ok)throw 0;return(await r.json()).slice(0,6).map(x=>x.show)}
+/* temporadas ya emitidas (con estreno hasta hoy) */
+async function serTemps(id){if(!id)return 0;const r=await fetch(TVM+'/shows/'+id+'/seasons');if(!r.ok)throw 0;const hoy=today();
+  return(await r.json()).filter(z=>z.premiereDate&&z.premiereDate<=hoy&&+z.number>0).reduce((m,z)=>Math.max(m,+z.number),0)}
 async function serCheck(x){if(!x.tvm)return;
   const[sh,se]=await Promise.all([fetch(TVM+'/shows/'+x.tvm).then(r=>r.json()),fetch(TVM+'/shows/'+x.tvm+'/seasons').then(r=>r.json())]);
   const n=+x.ult+1,s=(se||[]).find(z=>+z.number===n);let P=null;
@@ -279,7 +282,7 @@ const JW=q=>'https://www.justwatch.com/ar/buscar?q='+encodeURIComponent(q||'');
 function vSeries(){$('#hero').innerHTML='';const cs=catS(),L=D.series;
   let h='<div class="card"><h2>Agregar serie en espera</h2><p class="hint">Las que viste hasta una temporada y esperan la siguiente. Busco la fecha de estreno y te aviso cuándo activar la plataforma.</p>';
   if(S.ssel){const s=S.ssel,svs=Object.keys(cs).sort((a,b)=>cs[a].n.localeCompare(cs[b].n));const g=s.svc;
-    h+='<p style="margin:0 0 8px"><b>'+esc(s.name)+'</b>'+(s.premiered?' ('+s.premiered.slice(0,4)+')':'')+'</p><div class="form"><label>Vi hasta la temporada<input inputmode="numeric" data-sult value="'+esc(S.sult)+'"></label><label>Plataforma<select data-ssvc>'+svs.map(k=>'<option value="'+esc(k)+'"'+(g===k?' selected':'')+'>'+esc(cs[k].n)+'</option>').join('')+'<option value=""'+(!g?' selected':'')+'>Otra / no sé</option></select></label><button class="btn" data-act="seradd">Agregar</button><button class="btn ghost" data-act="sercancel">Cancelar</button></div>'}
+    h+='<p style="margin:0 0 8px"><b>'+esc(s.name)+'</b>'+(s.premiered?' ('+s.premiered.slice(0,4)+')':'')+'</p><div class="form"><label>Vi hasta la temporada'+(s.cargando?'<select disabled><option>Buscando temporadas…</option></select>':s.temps?'<select data-sult>'+Array.from({length:s.temps},(_,k)=>k+1).reverse().map(k=>'<option value="'+k+'"'+(String(k)===String(S.sult)?' selected':'')+'>Temporada '+k+(k===s.temps?' (la última emitida)':'')+'</option>').join('')+'</select>':'<input inputmode="numeric" data-sult value="'+esc(S.sult)+'">')+'</label><label>Plataforma<select data-ssvc>'+svs.map(k=>'<option value="'+esc(k)+'"'+(g===k?' selected':'')+'>'+esc(cs[k].n)+'</option>').join('')+'<option value=""'+(!g?' selected':'')+'>Otra / no sé</option></select></label><button class="btn" data-act="seradd"'+(s.cargando?' disabled':'')+'>Agregar</button><button class="btn ghost" data-act="sercancel">Cancelar</button></div>'}
   else{h+='<form data-ss class="form"><label class="w">Nombre de la serie<input data-sq value="'+esc(S.sq)+'" placeholder="Ej: The Last of Us" enterkeyhint="search"></label><button class="btn" type="submit">Buscar</button></form><p class="mut" style="font-size:13px;margin:8px 0 0">Si no aparece, probá con el nombre original (en inglés).</p>';
     if(S.sbusy)h+='<p class="mut">Buscando…</p>';
     else if(S.sres)h+=S.sres.length?S.sres.map((s,j)=>'<button class="res" data-sr="'+j+'">'+(s.image&&s.image.medium?'<img src="'+esc(s.image.medium)+'" alt="" loading="lazy">':'<img alt="">')+'<span><b>'+esc(s.name)+'</b><br><small class="mut">'+esc([s.premiered&&s.premiered.slice(0,4),(s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)].filter(Boolean).join(' · '))+'</small></span></button>').join('')+'<p style="margin:10px 0 0"><button class="btn ghost sm" data-act="sermanual">No está: cargarla a mano</button></p>':'<p class="mut">No encontré resultados.</p><button class="btn ghost sm" data-act="sermanual">Cargarla a mano</button>'}
@@ -338,7 +341,8 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
   if(d.delw!=null){D.watch.splice(+d.delw,1);save();render();return}
   if(d.unw!=null){D.watch[+d.unw].visto=false;save();render();return}
   if(d.delser!=null){const x=D.series[+d.delser];if(!await ask('¿Quitar “'+x.t+'”?','Quitar'))return;D.series.splice(+d.delser,1);save();render();return}
-  if(d.sr!=null){const s=S.sres[+d.sr];S.ssel={name:s.name,id:s.id,premiered:s.premiered,svc:svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name))};S.sult='1';render();return}
+  if(d.sr!=null){const s=S.sres[+d.sr];S.ssel={name:s.name,id:s.id,premiered:s.premiered,svc:svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)),temps:null,cargando:true};S.sult='1';render();
+    const sel=S.ssel;serTemps(s.id).then(n=>{sel.temps=n;if(n)S.sult=String(n)}).catch(()=>{}).finally(()=>{sel.cargando=false;if(S.ssel===sel)render()});return}
   const C=D;switch(d.act){
     case 'introx':D.intro=false;save();render();break;
     case 'notifs':askNotifs();break;
