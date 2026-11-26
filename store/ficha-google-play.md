@@ -38,7 +38,7 @@ Seriéfilos no está afiliada a Netflix, Disney, Warner Bros. Discovery, Amazon,
 **Público objetivo:** mayores de 13 años.
 **Anuncios:** No contiene anuncios.
 **Seguridad de los datos:** No recopila ni comparte datos (todo queda en el dispositivo). Datos en tránsito cifrados (HTTPS).
-**Política de privacidad (URL):** https://aleknot696.github.io/seriefilos/privacidad.html
+**Política de privacidad (URL):** https://aleknot696.github.io/Seriefilos/privacidad.html
 
 **Gráficos:**
 • Ícono 512×512: store/icon-512.png

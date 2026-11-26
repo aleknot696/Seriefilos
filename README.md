@@ -13,7 +13,7 @@ App de Android para pagar solo las plataformas de streaming que usás: rotación
 ## Puesta en marcha (una sola vez)
 
 1. Crear el repositorio **seriefilos** (público) en github.com/aleknot696 y subir todo este contenido.
-2. **Settings → Pages**: "Deploy from a branch", rama `main`, carpeta `/docs`. Queda en https://aleknot696.github.io/seriefilos/
+2. **Settings → Pages**: "Deploy from a branch", rama `main`, carpeta `/docs`. Queda en https://aleknot696.github.io/Seriefilos/
 3. **Settings → Secrets and variables → Actions**: cargar los 4 secretos del archivo `LEEME-firma.txt` (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD).
 4. **Actions → Armar app Android → Run workflow**. Al terminar, en el resumen de la ejecución aparecen:
    - `seriefilos-prueba-apk`: para instalar directo en el celular.
