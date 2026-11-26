@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1033">
+<title>Seriéfilos</title>
+<link rel="icon" href="icon.svg">
+<style>
+/* Seriéfilos: pagá solo lo que ves. Fondo de sala de cine (violeta noche), acento ámbar de marquesina. */
+:root{color-scheme:light dark;--bg:light-dark(#f7f5fb,#0f0a1c);--card:light-dark(#fff,#191230);--soft:light-dark(#f0ecf8,#211938);--ink:light-dark(#1b1430,#ece8f7);--mut:light-dark(#655d7a,#a39cba);--line:light-dark(#e3ddf0,#2c2347);--ac:#1b1033;--ac2:#3b2a6b;--amb:#ffb547;--amb2:light-dark(#9a5b00,#ffc469);--ok:light-dark(#0f7a53,#5fd3a0);--bad:light-dark(#c4314b,#ff7d93);--focus:#ffb547}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom));overflow-x:clip}
+h1,h2,h3{line-height:1.15;margin:0;text-wrap:balance}h2{font-size:20px}h3{font-size:17px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+a{color:inherit}
+.top{background:var(--ac);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 14px;display:flex;align-items:center;gap:10px}
+.top h1{font-size:21px;flex:1;letter-spacing:-.01em}.top h1 b{color:var(--amb)}
+.top .ib{background:transparent;border:1px solid #4b3a80;color:#fff;border-radius:10px;min-width:44px;min-height:44px;font-size:18px}
+.hero{background:var(--ac);color:#fff;padding:4px 18px 24px}
+.hero small{opacity:.8}.big{font:700 44px/1.05 system-ui,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.hero p{margin:6px 0 0;opacity:.85;font-size:14px}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.card>header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.hint{color:var(--mut);font-size:14px;margin:4px 0 10px}
+.mut{color:var(--mut)}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+.tag{display:inline-block;background:var(--ac2);color:#fff;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600;vertical-align:middle}
+.tag.amb{background:var(--amb);color:#2a1a00}.tag.red{background:var(--bad);color:#fff}
+.btn{background:var(--ac2);color:#fff;border:0;border-radius:10px;padding:10px 16px;min-height:44px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:14px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.x{background:transparent;border:0;color:var(--mut);font-size:22px;min-width:40px;min-height:40px;border-radius:8px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mut)}
+input,select{font-size:16px;border:1px solid var(--line);border-radius:10px;padding:9px 10px;min-height:44px;background:var(--card);color:var(--ink)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;align-items:end}
+.form .w{grid-column:1/-1}
+.it{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px;background:var(--card)}
+.it h3{flex:1}.ith{display:flex;align-items:center;gap:8px}
+.price{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sep{border-top:1px dashed var(--line);margin-top:10px;padding-top:10px}
+.row{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}.row>span{flex:1}
+.row input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--ac2)}
+.alert{background:light-dark(#fff6e6,#2a2010);border:1px solid light-dark(#f3d9a6,#5a4520);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.alert p{margin:0}
+.verd{border-radius:12px;padding:10px 12px;margin-top:10px;background:var(--soft)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs a{flex:1;text-decoration:none;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 10px;font-size:11.5px;min-height:56px}
+nav.tabs a svg{width:24px;height:24px}
+nav.tabs a[aria-current=page]{color:var(--ink);font-weight:700}nav.tabs a[aria-current=page] svg{color:var(--amb2)}
+.res{display:flex;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:12px;margin-top:8px;background:var(--card);width:100%;text-align:left}
+.res img{width:42px;height:60px;object-fit:cover;border-radius:6px;background:var(--soft);flex:none}
+.empty{text-align:center;color:var(--mut);padding:18px 6px}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#241a40;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;z-index:20}
+#toast.on{opacity:1}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;z-index:30;padding:20px}
+.modal>div{background:var(--card);border-radius:16px;padding:18px;max-width:420px;width:100%}
+details summary{cursor:pointer;color:var(--mut);font-size:14px}
+s{color:var(--mut);font-weight:400}
+.foot{font-size:13px;color:var(--mut);text-align:center;margin:20px 0 6px}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<header class="top"><h1>Serié<b>filos</b></h1><button class="ib" data-go="ajustes" aria-label="Ajustes">⚙</button></header>
+<div id="hero"></div>
+<main id="view"></main>
+<nav class="tabs" aria-label="Secciones">
+ <a href="#inicio" data-r="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</a>
+ <a href="#plataformas" data-r="plataformas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Plataformas</a>
+ <a href="#paraver" data-r="paraver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v17l-7-4-7 4z"/></svg>Para ver</a>
+ <a href="#series" data-r="series"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>En espera</a>
+ <a href="#promos" data-r="promos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Promos</a>
+</nav>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* ===== configuración ===== */
+const CAT_URL='https://aleknot696.github.io/seriefilos/catalogo.json';
+const KEY='seriefilos:v1',KCAT='seriefilos:cat';
+const VERSION='1.0.0';
+/* ===== utilidades ===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=new Intl.NumberFormat('es-AR',{maximumFractionDigits:0});
+const fmt=v=>'$\u00a0'+nf.format(Math.round(+v||0));
+const pn=s=>{const v=String(s??'').replace(/[^\d-]/g,'');return v&&v!=='-'?parseInt(v,10):0};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const MN=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=()=>ymd(new Date());
+const nowK=()=>today().slice(0,7);
+const lab=k=>{const[y,m]=k.split('-');return MN[m-1]+' '+y};
+const labS=k=>{const[y,m]=k.split('-');return MN[m-1].slice(0,3)+' '+y.slice(2)};
+const addM=(k,d)=>{let[y,m]=k.split('-').map(Number);m+=d;y+=Math.floor((m-1)/12);m=((m-1)%12+12)%12+1;return y+'-'+String(m).padStart(2,'0')};
+const addD=(f,mo,dd)=>{const d=new Date(+f.slice(0,4),+f.slice(5,7)-1+(mo||0),+f.slice(8)+(dd||0));return ymd(d)};
+const dObj=f=>new Date(+f.slice(0,4),+f.slice(5,7)-1,+f.slice(8));
+const dias=f=>f?Math.round((dObj(f)-dObj(today()))/864e5):null;
+const fDM=f=>f?+f.slice(8)+'/'+(+f.slice(5,7)):'';
+const fDMY=f=>f?+f.slice(8)+'/'+(+f.slice(5,7))+'/'+f.slice(2,4):'';
+const pl=(n,s,p)=>n+' '+(n===1?s:(p||s+'s'));
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
+function ask(msg,ok){return new Promise(r=>{const m=document.createElement('div');m.className='modal';m.innerHTML='<div role="dialog" aria-modal="true"><p style="margin:0 0 14px">'+esc(msg)+'</p><div class="acts" style="justify-content:flex-end"><button class="btn ghost" data-a="0">Cancelar</button><button class="btn" data-a="1">'+esc(ok||'Aceptar')+'</button></div></div>';document.body.append(m);m.querySelector('[data-a="1"]').focus();m.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b&&e.target!==m)return;m.remove();r(!!b&&b.dataset.a==='1')})})}
+
+/* ===== estado ===== */
+const D0=()=>({subs:[],watch:[],series:[],aviso:7,avisoEstreno:7,dolarManual:0,intro:true});
+let D=D0();try{D=Object.assign(D0(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+let CAT=null;try{CAT=JSON.parse(localStorage.getItem(KCAT)||'null')}catch(e){}
+const S={route:'inicio',pf:null,bj:null,nw:{t:'',svc:'',tipo:'Serie'},jw:'',ns:'',np:'',nc:{n:'',m:'',mon:'ARS'},sq:'',sres:null,sbusy:false,ssel:null,sult:'1'};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){toast('No se pudo guardar')}scheduleNotifs()}
+
+/* ===== catálogo (precios y promos) ===== */
+const catS=()=>(CAT&&CAT.servicios)||{};
+const dolar=()=>+D.dolarManual||+(CAT&&CAT.dolar)||0;
+const rec=()=>CAT&&CAT.rec!=null?+CAT.rec:51;
+const toARS=(m,mon)=>mon==='USD'?m*dolar()*(1+rec()/100):m;
+async function loadCat(){
+  const tryJ=async u=>{const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return r.json()};
+  if(!CAT){try{CAT=await tryJ('catalogo.json')}catch(e){}}
+  try{const c=await tryJ(CAT_URL+'?t='+Date.now());if(c&&c.servicios&&(!CAT||!CAT.mes||String(c.mes)>=String(CAT.mes))){CAT=c;localStorage.setItem(KCAT,JSON.stringify(c))}}catch(e){}
+  render()}
+
+/* ===== suscripciones ===== */
+function subInfo(x){if(x.svc){const sv=catS()[x.svc],p=sv&&sv.planes&&sv.planes[x.plan];return{n:sv?sv.n:x.svc,plan:p?p.n:x.plan,m:p?+p.m||0:0,mon:sv?sv.mon:'ARS',ok:!!p}}return{n:x.n,m:+x.m||0,mon:x.mon||'ARS',ok:true}}
+const subFin=x=>{const i=subInfo(x);return toARS(i.m,i.mon)};
+const subHasta=x=>x.alta?addD(x.alta,1):'';
+const subCorte=x=>x.rot&&x.alta?(x.hasta||subHasta(x)):'';
+function subPaga(x,k){k=k||nowK();if(x.pausa)return false;if(x.rot&&x.baja&&x.alta)return x.alta.slice(0,7)===k;return true}
+const promoFin=x=>x.promo&&x.promo.desde?addM(x.promo.desde,Math.max(1,+x.promo.meses||1)-1):'';
+const promoAct=(x,k)=>!!(x.promo&&x.promo.desde&&k>=x.promo.desde&&k<=promoFin(x));
+const promoVal=(x,p)=>p.pct?subFin(x)*(1-Math.min(100,+p.pct)/100):(+p.m||0);
+const subFinK=(x,k)=>promoAct(x,k||nowK())?promoVal(x,x.promo):subFin(x);
+const subTot=k=>{k=k||nowK();return D.subs.filter(x=>subPaga(x,k)).reduce((a,x)=>a+subFinK(x,k),0)};
+const pfParse=v=>{v=String(v||'').trim();const n=parseFloat(v.replace(/[^\d,.]/g,'').replace(/\.(?=\d{3})/g,'').replace(',','.'))||0;return(/%/.test(v)||(n>0&&n<=100))?{pct:n}:{m:Math.round(n)}};
+const pend=svc=>D.watch.filter(w=>!w.visto&&w.svc&&w.svc===svc);
+const pubPromos=svc=>{const sv=catS()[svc];return((sv&&sv.promos)||[]).filter(p=>!p.hasta||p.hasta>=today())};
+const svcCorte=svc=>{const x=D.subs.find(z=>z.svc===svc&&z.baja&&subCorte(z));if(!x)return '';const f=subCorte(x);return f>=today()?f:''};
+function subVencidas(){let ch=false;D.subs.forEach(x=>{if(x.rot&&x.baja&&x.alta&&today()>subCorte(x)){x.pausa=true;delete x.alta;delete x.baja;delete x.bajaSF;delete x.hasta;ch=true}});if(ch)save()}
+function cheapest(svc){const sv=catS()[svc];if(!sv)return 0;const v=Object.values(sv.planes||{}).map(p=>toARS(+p.m||0,sv.mon)).filter(v=>v>0);return v.length?Math.min(...v):0}
+const svcName=svc=>svc&&catS()[svc]?catS()[svc].n:(svc?svc:'Otra plataforma');
+
+/* ===== series (TVmaze) ===== */
+const TVM='https://api.tvmaze.com';
+const NETMAP=[[/netflix/i,'netflix'],[/hbo|^max$/i,'hbo'],[/disney/i,'disney'],[/prime|amazon/i,'prime'],[/apple/i,'appletv'],[/crunchyroll/i,'crunchyroll'],[/paramount/i,'paramount'],[/star\+/i,'disney']];
+const svcFromNet=n=>{for(const[r,id] of NETMAP)if(r.test(n||''))return catS()[id]?id:'';return ''};
+async function tvmSearch(q){const r=await fetch(TVM+'/search/shows?q='+encodeURIComponent(q));if(!r.ok)throw 0;return(await r.json()).slice(0,6).map(x=>x.show)}
+async function serCheck(x){if(!x.tvm)return;
+  const[sh,se]=await Promise.all([fetch(TVM+'/shows/'+x.tvm).then(r=>r.json()),fetch(TVM+'/shows/'+x.tvm+'/seasons').then(r=>r.json())]);
+  const n=+x.ult+1,s=(se||[]).find(z=>+z.number===n);let P=null;
+  if(s&&s.premiereDate)P={temp:n,f:s.premiereDate,estado:'fecha'};
+  if(P&&s.endDate&&s.endDate>s.premiereDate)P.fin=s.endDate;
+  if(!P&&s)P={temp:n,estado:'confirmada'};
+  if(!P&&sh&&sh.status==='Ended')P={temp:n,estado:'terminada'};
+  if(x.prox&&x.prox.manual&&(!P||P.estado!=='fecha'))P=x.prox;
+  x.prox=P;x.chk=today();if(!x.svc&&sh){const s2=svcFromNet((sh.webChannel&&sh.webChannel.name)||(sh.network&&sh.network.name));if(s2)x.svc=s2}}
+async function serRefresh(force){const L=D.series.filter(x=>x.tvm&&(force||x.chk!==today()));if(!L.length)return;let err=0;
+  for(const x of L){try{await serCheck(x)}catch(e){err++}await new Promise(r=>setTimeout(r,350))}
+  save();render();if(force)toast(err?'Algunas no se pudieron revisar (¿sin conexión?)':'Series actualizadas')}
+function serPlan(x){const P=x.prox;if(!P||!P.f)return '';const sv=catS()[x.svc],nm=sv?sv.n:'la plataforma',sub=D.subs.find(z=>z.svc===x.svc);
+  const porCap=P.fin&&P.fin>P.f,cuando=porCap?P.fin:P.f,ml=lab(cuando.slice(0,7)),sem=porCap?' Sale por capítulos: si esperás al final ('+fDM(P.fin)+') la ves entera pagando un solo mes.':'';
+  if(dias(cuando)<0){if(!sv)return 'Ya salió: activá la plataforma el mes que la quieras ver.';if(sub&&!sub.rot&&!sub.pausa)return '<span class="ok">Ya pagás '+esc(nm)+'</span>: podés verla ahora.';return(sub?'Rotás ':'No tenés ')+esc(nm)+': '+(sub?'activala':'suscribite')+' el mes que la quieras ver.'}
+  if(!sv)return 'Fijate en qué plataforma sale y activala en '+esc(ml)+'.';
+  if(sub&&!sub.rot&&!sub.pausa)return '<span class="ok">Ya pagás '+esc(nm)+'</span>.'+(porCap?' Termina de salir el '+fDM(P.fin)+'.':'');
+  const p=cheapest(x.svc);
+  return(sub?'Rotás '+esc(nm)+': <b>activala en ':'No tenés '+esc(nm)+': <b>suscribite en ')+esc(ml)+'</b>'+(cuando===P.f?' (el '+fDM(P.f)+')':' (desde el '+fDM(cuando)+')')+(!sub&&p?', desde '+fmt(p)+' por mes':'')+'.'+sem}
+function serEst(x){const P=x.prox,n=+x.ult+1,ch=x.chk?' <small class="mut">· revisado el '+fDM(x.chk)+'</small>':'';
+  if(!P)return '<span class="mut">Sin novedades de la temporada '+n+' todavía.</span>'+ch;
+  if(P.estado==='terminada')return '<span class="bad">La serie terminó: no hay temporada '+n+'.</span>'+ch;
+  if(P.estado==='cancelada')return '<span class="bad">Cancelada: no va a haber temporada '+n+'.</span>'+ch;
+  if(P.f){const d=dias(P.f);return '<b>Temporada '+esc(P.temp||n)+'</b> '+(d>0?'sale el '+fDMY(P.f)+' (faltan '+pl(d,'día')+')':d===0?'<b>sale hoy</b>':'<b>ya salió</b> el '+fDMY(P.f))+'.'+ch}
+  return 'Temporada '+esc(P.temp||n)+' confirmada, sin fecha.'+ch}
+
+/* ===== notificaciones (Capacitor) ===== */
+const LN=(()=>{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;return(C.Plugins&&C.Plugins.LocalNotifications)||(C.registerPlugin&&C.registerPlugin('LocalNotifications'))})();
+const hid=s=>{let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)%2000000000+1};
+function notifPlan(){const out=[],now=Date.now(),at=(f,h)=>{const d=dObj(f);d.setHours(h||10,0,0,0);return d};
+  const add=(key,f,title,body)=>{const d=at(f);if(d.getTime()>now+60000)out.push({id:hid(key),title,body,schedule:{at:d,allowWhileIdle:true}})};
+  D.series.forEach(x=>{const P=x.prox;if(!P||!P.f)return;const t='Temporada '+(P.temp||+x.ult+1)+' de '+x.t;const plan=serPlan(x).replace(/<[^>]+>/g,'');
+    add('se1'+x.id+P.f,addD(P.f,0,-(+D.avisoEstreno||7)),t+' sale el '+fDM(P.f),plan);add('se0'+x.id+P.f,P.f,t+': ¡sale hoy!',plan);
+    if(P.fin&&P.fin>P.f)add('sef'+x.id+P.fin,P.fin,t+': ya salió completa','Si rotás '+svcName(x.svc)+', este es el momento de activarla.')});
+  D.subs.forEach(x=>{const f=subCorte(x),nm=subInfo(x).n;if(x.baja&&f&&!(x.bajaSF&&!x.hasta)){const pw=pend(x.svc);if(pw.length){const tl=pw.slice(0,3).map(w=>w.t).join(', ');
+      add('c7'+nm+f,addD(f,0,-(+D.aviso||7)),nm+' se corta el '+fDM(f),'Te falta ver: '+tl+'.');add('c2'+nm+f,addD(f,0,-2),nm+' se corta en 2 días','Te falta: '+tl+'. Si no llegás, reactivala antes del '+fDM(f)+'.')}}
+    if(x.rot&&x.alta&&!x.baja)add('b'+nm+x.alta,addD(x.alta,0,1),'¿Te diste de baja de '+nm+'?','Si la cancelás ahora, la seguís viendo hasta el '+fDM(subHasta(x))+'.');
+    if(x.promo){const fk=promoFin(x);add('p'+nm+fk,fk+'-01','Termina tu promo de '+nm,'Desde '+lab(addM(fk,1))+' vuelve a '+fmt(subFin(x))+' por mes.')}});
+  return out.slice(0,60)}
+let notTimer;function scheduleNotifs(){if(!LN)return;clearTimeout(notTimer);notTimer=setTimeout(async()=>{try{
+  const p=await LN.checkPermissions();if(p.display!=='granted')return;
+  const pen=await LN.getPending();if(pen.notifications&&pen.notifications.length)await LN.cancel({notifications:pen.notifications.map(n=>({id:n.id}))});
+  const L=notifPlan();if(L.length)await LN.schedule({notifications:L})}catch(e){}},600)}
+async function askNotifs(){if(!LN){toast('Las notificaciones funcionan en la app de Android');return}try{const r=await LN.requestPermissions();if(r.display==='granted'){D.notifOk=true;save();toast('Listo: te aviso en el celular')}else toast('Sin permiso: los avisos quedan solo dentro de la app')}catch(e){toast('No se pudo pedir el permiso')}render()}
+
+/* ===== vistas ===== */
+function alerts(){const al=[],k=nowK(),av=+D.avisoEstreno||7;
+  D.subs.forEach(x=>{if(x.rot&&x.alta&&!x.baja&&!x.pausa)al.push('<div class="alert"><p><b>Date de baja en '+esc(subInfo(x).n)+'</b>: la activaste el '+fDM(x.alta)+' y la seguís viendo hasta el '+fDM(subCorte(x))+' aunque la canceles hoy.</p><div class="acts"><button class="btn sm" data-act="subbaja" data-i="'+D.subs.indexOf(x)+'">Ya me di de baja</button></div></div>')});
+  D.subs.forEach(x=>{if(!x.baja)return;const f=subCorte(x);if(!f||(x.bajaSF&&!x.hasta))return;const d=dias(f);if(d<0||d>(+D.aviso||7))return;const pw=pend(x.svc);if(!pw.length)return;
+    const tl=pw.slice(0,3).map(w=>esc(w.t)).join(', ')+(pw.length>3?' y '+(pw.length-3)+' más':'');
+    al.push('<div class="alert"><p><b>'+esc(subInfo(x).n)+' se corta '+(d===0?'hoy':d===1?'mañana':'el '+fDM(f)+' (en '+d+' días)')+'</b>. Te falta'+(pw.length>1?'n':'')+': '+tl+'.'+(d<=2?' ¿Llegás a terminar? Si no, reactivala antes de que se corte.':'')+'</p></div>')});
+  D.subs.forEach(x=>{if(!x.promo)return;const fin=promoFin(x);if(fin!==k&&fin!==addM(k,1))return;al.push('<div class="alert"><p><b>Tu promo de '+esc(subInfo(x).n)+' termina '+(fin===k?'este mes':'el mes que viene')+'</b>. Desde '+esc(lab(addM(fin,1)))+' vuelve a '+fmt(subFin(x))+' por mes.</p></div>')});
+  D.series.forEach((x,i)=>{const P=x.prox;if(!P||!P.f)return;const d=dias(P.f);
+    if(d>=0&&d<=Math.max(av,30))al.push('<div class="alert"><p><b>'+esc(x.t)+': temporada '+esc(P.temp||+x.ult+1)+(d?' sale el '+fDM(P.f)+' (en '+pl(d,'día')+')':' sale hoy')+'</b>. '+serPlan(x)+'</p></div>');
+    else if(d<0&&d>=-45)al.push('<div class="alert"><p><b>Ya salió la temporada '+esc(P.temp||+x.ult+1)+' de '+esc(x.t)+'</b>. '+serPlan(x)+'</p><div class="acts"><button class="btn sm" data-act="sertow" data-i="'+i+'">Pasar a “Para ver”</button></div></div>')});
+  return al.join('')}
+function sugerencia(){const by={};D.watch.filter(w=>!w.visto&&w.svc).forEach(w=>{(by[w.svc]=by[w.svc]||[]).push(w)});
+  const rk=Object.keys(by).sort((a,b)=>by[b].length-by[a].length);if(!rk.length)return '';
+  const price=s=>{const x=D.subs.find(z=>z.svc===s);return x?subFinK(x):cheapest(s)};
+  return '<p style="margin:0">Con lo que tenés para ver, el mes que viene conviene activar '+rk.slice(0,2).map(s=>'<b>'+esc(svcName(s))+'</b> ('+pl(by[s].length,'título')+(price(s)?', '+fmt(price(s)):'')+')').join(' y ')+'.</p>'}
+function vInicio(){subVencidas();const st=subTot(),pag=D.subs.filter(x=>subPaga(x)).length,rotAh=D.subs.filter(x=>!subPaga(x)).reduce((a,x)=>a+subFin(x),0),proAh=D.subs.filter(x=>subPaga(x)&&promoAct(x,nowK())).reduce((a,x)=>a+subFin(x)-subFinK(x),0);
+  $('#hero').innerHTML='<div class="hero"><small>Este mes tus plataformas te cuestan</small><div class="big">'+fmt(st)+'</div><p>'+pl(pag,'plataforma activa','plataformas activas')+' de '+D.subs.length+(rotAh>500?' · rotando ahorrás '+fmt(rotAh):'')+(proAh>500?' · con promos ahorrás '+fmt(proAh):'')+'</p></div>';
+  const al=alerts(),sg=sugerencia(),nx=D.series.filter(x=>x.prox&&x.prox.f&&dias(x.prox.f)>=0).sort((a,b)=>a.prox.f<b.prox.f?-1:1).slice(0,4);
+  let h='';
+  if(D.intro&&!D.subs.length)h+='<div class="card"><h2>Pagá solo lo que ves</h2><p class="hint" style="margin-top:8px">Cargá tus plataformas, armá tu lista de lo que querés ver y sumá las series que esperan temporada nueva. Seriéfilos te dice qué plataforma activar cada mes, cuándo darte de baja sin quedarte a medias y si una promo te conviene.</p><div class="acts"><a class="btn" href="#plataformas">Cargar mis plataformas</a><button class="btn ghost" data-act="introx">Cerrar</button></div></div>';
+  if(LN&&!D.notifOk)h+='<div class="card"><p style="margin:0 0 8px"><b>Activá las notificaciones</b> para que te avise de estrenos, de cuándo se corta una plataforma y del fin de tus promos.</p><button class="btn" data-act="notifs">Activar avisos</button></div>';
+  h+=al;
+  if(sg)h+='<div class="card"><h2>El mes que viene</h2><div style="margin-top:8px">'+sg+'</div></div>';
+  if(nx.length)h+='<div class="card"><h2>Próximos estrenos</h2>'+nx.map(x=>'<div class="row"><span><b>'+esc(x.t)+'</b> T'+esc(x.prox.temp)+'<br><small class="mut">'+esc(svcName(x.svc))+'</small></span><span style="flex:none" class="price">'+fDM(x.prox.f)+'</span></div>').join('')+'</div>';
+  if(!al&&!sg&&!nx.length&&!(D.intro&&!D.subs.length))h+='<div class="card empty">No hay nada urgente. Sumá títulos en “Para ver” y series en “En espera” para que la app te sugiera qué activar.</div>';
+  return h}
+function rotHTML(x,i){const pw=pend(x.svc).length,pt=pw?' <span class="tag">'+pw+' para ver</span>':'';
+  if(S.bj&&S.bj.i===i)return '<div class="sep"><p style="margin:0 0 8px"><b>¿Hasta qué fecha tenés acceso?</b> <span class="mut">Al darte de baja, la plataforma suele decir “tenés acceso hasta el…”.</span></p><div class="form"><label>Acceso hasta<input type="date" data-bj value="'+esc(S.bj.f||'')+'"></label><button class="btn" data-act="bjsave" data-i="'+i+'">Guardar</button><button class="btn ghost" data-act="bjskip">No sé</button></div></div>';
+  if(!x.rot)return '<label class="sep" style="flex-direction:row;align-items:center;gap:8px;cursor:pointer;font-size:14px"><input type="checkbox" data-subrot="'+i+'" style="width:20px;height:20px;min-height:0"> La roto según lo que veo</label>';
+  let st,btn='';
+  if(x.pausa){st='<b class="mut">Pausada</b>: no la pagás';btn='<button class="btn sm" data-act="subact" data-i="'+i+'">Activar este mes</button>'}
+  else if(x.alta&&!x.baja){st='<b class="bad">Activada el '+fDM(x.alta)+': date de baja hoy</b>. La ves hasta el '+fDM(subCorte(x));btn='<button class="btn sm" data-act="subbaja" data-i="'+i+'">Ya me di de baja</button>'}
+  else if(x.alta&&x.baja){const d=dias(subCorte(x));st='<b class="ok">Dada de baja</b>: '+(x.bajaSF&&!x.hasta?'la ves hasta que termine el período que pagaste':'la ves hasta el <b>'+fDM(subCorte(x))+'</b>'+(d>=0&&d<=7?' <span class="bad">(quedan '+pl(d,'día')+')</span>':''))+'.';btn='<button class="btn ghost sm" data-act="bjopen" data-i="'+i+'">'+(x.hasta?'Cambiar fecha':'Cargar fecha exacta')+'</button>'}
+  else{st='<b>Pagando todos los meses</b>';btn='<button class="btn ghost sm" data-act="subpausa" data-i="'+i+'">Ya la di de baja</button>'}
+  return '<div class="sep"><p style="margin:0 0 6px;font-size:14px">'+st+pt+'</p><div class="acts" style="margin:0">'+btn+'<label style="flex-direction:row;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" data-subrot="'+i+'" checked style="width:18px;height:18px;min-height:0"> Rotar</label></div></div>'}
+function promoHTML(x,i){const k=nowK(),P=x.promo,pub=x.svc?pubPromos(x.svc):[];let h='';
+  if(P){const fin=promoFin(x),v=promoVal(x,P),desc=P.pct?P.pct+'% off':fmt(P.m)+' por mes';
+    h=k>fin?'<p style="margin:0;font-size:14px"><b class="mut">La promo terminó en '+esc(labS(fin))+'</b>. Ya se cuenta el precio normal.</p>':'<p style="margin:0;font-size:14px"><span class="tag amb">Promo '+esc(desc)+'</span> '+(k<P.desde?'Empieza en '+esc(labS(P.desde)):'Pagás <b>'+fmt(v)+'</b> <s>'+fmt(subFin(x))+'</s>')+' hasta '+esc(labS(fin))+(P.nota?'<br><small class="mut">'+esc(P.nota)+'</small>':'')+'</p>';
+    h+='<div class="acts" style="margin-top:6px"><button class="btn ghost sm" data-act="promodel" data-i="'+i+'">Quitar promo</button></div>'}
+  else if(S.pf&&S.pf.i===i)h=promoForm(x,i);
+  else h=pub.map((p,j)=>'<p style="margin:0 0 6px;font-size:14px"><span class="tag amb">Promo pública</span> '+esc(p.t)+(p.hasta?' · hasta el '+fDM(p.hasta):'')+' <button class="btn ghost sm" data-act="promouse" data-i="'+i+'" data-j="'+j+'">¿Me conviene?</button></p>').join('')+'<button class="btn ghost sm" data-act="promoopen" data-i="'+i+'">Me ofrecieron una promo</button>';
+  return '<div class="sep">'+h+'</div>'}
+function promoForm(x,i){const P=S.pf,k=nowK();
+  return '<p style="margin:0 0 8px"><b>Promo que te ofrecieron</b></p><div class="form"><label>Descuento o precio<input data-pf="v" value="'+esc(P.v)+'" placeholder="50% o 9000"></label><label>Meses<input inputmode="numeric" data-pf="n" value="'+esc(P.n)+'" placeholder="3"></label><label>Desde<select data-pf="desde">'+[0,1].map(j=>{const kk=addM(k,j);return '<option value="'+kk+'"'+(P.desde===kk?' selected':'')+'>'+esc(lab(kk))+'</option>'}).join('')+'</select></label><label class="w">Nota<input data-pf="nota" value="'+esc(P.nota)+'" placeholder="Ej: me la ofrecieron al darme de baja"></label></div>'+
+   '<div id="pfv">'+pfVerdict(x)+'</div><div class="acts"><button class="btn" data-act="promosave" data-i="'+i+'">Aceptar la promo</button><button class="btn ghost" data-act="promocancel">Cancelar</button></div>'}
+function pfVerdict(x){const P=S.pf,n=pn(P.n);if(!String(P.v||'').trim()||!n)return '<div class="verd mut">Completá el descuento y los meses y te digo si te conviene.</div>';
+  const pr=pfParse(P.v),nor=subFin(x),pm=promoVal(x,pr),T=pm*n,ah=(nor-pm)*n,nm=esc(subInfo(x).n),pc=pend(x.svc).length,isV=!!x.svc;
+  const ms=c=>pl(c,'mes','meses'),tt=c=>pl(c,'título');let ok,t;
+  if(!(pm<nor)){ok=0;t='No es una promo: '+fmt(pm)+' por mes no es menos que el precio normal ('+fmt(nor)+').'}
+  else if(!isV){ok=1;t='Ahorrás '+fmt(nor-pm)+' por mes, '+fmt(ah)+' en '+ms(n)+'.'}
+  else if(!pc){ok=0;t='No tenés nada pendiente en '+nm+'. Pagarías '+fmt(T)+' en '+ms(n)+' sin usarla. Mejor date de baja y volvé cuando haya algo para ver (muchas veces te reciben con otra promo).'}
+  else if(T<=nor){ok=1;t=(n===1?'Ese mes te sale ':'Los '+ms(n)+' te salen ')+fmt(T)+', '+(Math.round(T)<Math.round(nor)?'menos que':'lo mismo que')+' un solo mes a precio normal ('+fmt(nor)+').'}
+  else if(pc>=n){ok=1;t='Si vas a ver algo todos los meses: tenés '+tt(pc)+' pendientes. Pagás '+fmt(T)+' en vez de '+fmt(nor*n)+' (ahorrás '+fmt(ah)+').'}
+  else{const rc=pc*nor;if(T<rc){ok=1;t='Aunque solo tenés '+tt(pc)+' para ver, los '+ms(n)+' de promo ('+fmt(T)+') salen menos que rotar y pagar '+ms(pc)+' a precio normal ('+fmt(rc)+').'}
+    else{ok=0;t='Mejor rotar: con '+tt(pc)+' para ver te alcanza con '+ms(pc)+' a precio normal ('+fmt(rc)+'). La promo te deja pagando '+ms(n)+' por '+fmt(T)+'.'}}
+  return '<div class="verd"><p style="margin:0"><b class="'+(ok?'ok':'bad')+'">'+(ok?'Conviene.':'No conviene.')+'</b> '+t+'</p>'+(isV&&pc?'<p class="mut" style="margin:6px 0 0;font-size:13px">Cuento títulos de tu lista “Para ver”: una serie larga puede llevar más de un mes.</p>':'')+'</div>'}
+function vPlataformas(){subVencidas();const cs=catS(),ids=Object.keys(cs).sort((a,b)=>cs[a].n.localeCompare(cs[b].n));
+  $('#hero').innerHTML='<div class="hero"><small>Total de este mes</small><div class="big">'+fmt(subTot())+'</div><p>'+(CAT&&CAT.actualizado?'Precios de referencia en Argentina al '+esc(CAT.actualizado)+', con impuestos.':'Precios de referencia.')+'</p></div>';
+  if(!S.ns||(S.ns!=='otra'&&!cs[S.ns]))S.ns=ids[0]||'otra';const sv=cs[S.ns],pls=sv?Object.keys(sv.planes||{}):[];if(sv&&!sv.planes[S.np])S.np=pls[0]||'';
+  let h=D.subs.map((x,i)=>{const inf=subInfo(x),sv2=x.svc&&cs[x.svc],pr=subFinK(x),pa=subPaga(x);
+    return '<div class="it"><div class="ith"><h3>'+esc(inf.n)+(inf.mon==='USD'?' <small class="mut">USD '+esc(String(inf.m).replace('.',','))+'</small>':'')+'</h3><span class="price"'+(pa?'':' style="opacity:.5"')+'>'+fmt(pr)+'</span><button class="x" aria-label="Quitar '+esc(inf.n)+'" data-delsub="'+i+'">×</button></div>'+
+     (x.svc?'<label style="margin-top:6px">Plan<select data-subplan="'+i+'">'+(sv2?Object.keys(sv2.planes).map(p=>'<option value="'+esc(p)+'"'+(p===x.plan?' selected':'')+'>'+esc(sv2.planes[p].n)+'</option>').join(''):'')+'</select></label>':'<p class="mut" style="margin:4px 0 0;font-size:14px">Precio cargado a mano</p>')+
+     rotHTML(x,i)+promoHTML(x,i)+'</div>'}).join('');
+  if(!D.subs.length)h='<div class="card empty">Todavía no cargaste plataformas.</div>';
+  h+='<div class="card" style="margin-top:14px"><h2>Agregar plataforma</h2><div class="form" style="margin-top:10px"><label>Plataforma<select data-ns>'+ids.map(id=>'<option value="'+esc(id)+'"'+(id===S.ns?' selected':'')+'>'+esc(cs[id].n)+'</option>').join('')+'<option value="otra"'+(S.ns==='otra'?' selected':'')+'>Otra (la cargo a mano)</option></select></label>'+
+   (S.ns==='otra'?'<label>Nombre<input data-nc="n" value="'+esc(S.nc.n)+'"></label><label>Precio por mes<input inputmode="decimal" data-nc="m" value="'+esc(S.nc.m)+'"></label><label>Moneda<select data-nc="mon"><option'+(S.nc.mon!=='USD'?' selected':'')+'>ARS</option><option'+(S.nc.mon==='USD'?' selected':'')+'>USD</option></select></label>'
+     :'<label>Plan<select data-np>'+pls.map(p=>'<option value="'+esc(p)+'"'+(p===S.np?' selected':'')+'>'+esc(sv.planes[p].n)+' · '+fmt(toARS(+sv.planes[p].m,sv.mon))+'</option>').join('')+'</select></label>')+
+   '<button class="btn" data-act="addsub">Agregar</button></div></div>';
+  return h}
+function vParaver(){const w=D.watch,pd=w.filter(x=>!x.visto),cs=catS(),by={};pd.forEach(x=>{const k=x.svc||'';(by[k]=by[k]||[]).push(x)});
+  $('#hero').innerHTML='';
+  const svOpts=Object.keys(cs).sort((a,b)=>cs[a].n.localeCompare(cs[b].n)).map(k=>'<option value="'+esc(k)+'"'+(S.nw.svc===k?' selected':'')+'>'+esc(cs[k].n)+'</option>').join('')+'<option value=""'+(S.nw.svc===''?' selected':'')+'>Otra / no sé</option>';
+  const sg=sugerencia(),sin=D.subs.filter(x=>x.rot&&subPaga(x)&&!pend(x.svc).length);
+  let h='<div class="card"><h2>¿Dónde lo veo?</h2><p class="hint">Buscá un título: se abre JustWatch Argentina con la búsqueda hecha.</p><div class="form"><label class="w">Título<input data-jw value="'+esc(S.jw)+'" placeholder="Ej: The Last of Us"></label></div><div class="acts"><a class="btn" id="jwA" href="'+esc(JW(S.jw))+'" target="_blank" rel="noopener">Buscar en JustWatch</a></div></div>'+
+   '<div class="card"><h2>Agregar a “Para ver”</h2><div class="form" style="margin-top:10px"><label class="w">Título<input data-nw="t" value="'+esc(S.nw.t)+'"></label><label>Plataforma<select data-nw="svc">'+svOpts+'</select></label><label>Tipo<select data-nw="tipo">'+['Serie','Película','Anime','Documental'].map(t=>'<option'+(S.nw.tipo===t?' selected':'')+'>'+t+'</option>').join('')+'</select></label><button class="btn" data-act="addw">Agregar</button></div></div>'+
+   '<div class="card"><header><h2>Para ver</h2><b>'+pl(pd.length,'pendiente')+'</b></header>'+(sg?'<div class="verd">'+sg+(sin.length?'<p style="margin:6px 0 0">No tenés nada pendiente en '+sin.map(x=>'<b>'+esc(subInfo(x).n)+'</b>').join(', ')+': podés darla'+(sin.length>1?'s':'')+' de baja.</p>':'')+'</div>':'')+
+   (pd.length?Object.keys(by).sort((a,b)=>by[b].length-by[a].length).map(k=>{const cf=k?svcCorte(k):'';return '<h3 style="margin:14px 0 2px">'+esc(svcName(k))+(cf?' <span class="tag red">se corta el '+fDM(cf)+'</span>':'')+'</h3>'+by[k].map(x=>{const i=w.indexOf(x);return '<div class="row"><input type="checkbox" data-wv="'+i+'" aria-label="Ya lo vi: '+esc(x.t)+'"><span>'+esc(x.t)+'<br><small class="mut">'+esc(x.tipo||'')+(cf?' · <b class="bad">hasta el '+fDM(cf)+'</b>':'')+'</small></span><button class="x" aria-label="Quitar" data-delw="'+i+'">×</button></div>'}).join('')}).join(''):'<p class="empty">Tu lista está vacía.</p>')+
+   (w.some(x=>x.visto)?'<details style="margin-top:12px"><summary>Vistos ('+w.filter(x=>x.visto).length+')</summary>'+w.filter(x=>x.visto).map(x=>'<div class="row"><span class="mut">✓ '+esc(x.t)+' · '+esc(svcName(x.svc))+'</span><button class="btn ghost sm" data-unw="'+w.indexOf(x)+'">Deshacer</button></div>').join('')+'</details>':'')+'</div>';
+  return h}
+const JW=q=>'https://www.justwatch.com/ar/buscar?q='+encodeURIComponent(q||'');
+function vSeries(){$('#hero').innerHTML='';const cs=catS(),L=D.series;
+  let h='<div class="card"><h2>Agregar serie en espera</h2><p class="hint">Las que viste hasta una temporada y esperan la siguiente. Busco la fecha de estreno y te aviso cuándo activar la plataforma.</p>';
+  if(S.ssel){const s=S.ssel,svs=Object.keys(cs).sort((a,b)=>cs[a].n.localeCompare(cs[b].n));const g=s.svc;
+    h+='<p style="margin:0 0 8px"><b>'+esc(s.name)+'</b>'+(s.premiered?' ('+s.premiered.slice(0,4)+')':'')+'</p><div class="form"><label>Vi hasta la temporada<input inputmode="numeric" data-sult value="'+esc(S.sult)+'"></label><label>Plataforma<select data-ssvc>'+svs.map(k=>'<option value="'+esc(k)+'"'+(g===k?' selected':'')+'>'+esc(cs[k].n)+'</option>').join('')+'<option value=""'+(!g?' selected':'')+'>Otra / no sé</option></select></label><button class="btn" data-act="seradd">Agregar</button><button class="btn ghost" data-act="sercancel">Cancelar</button></div>'}
+  else{h+='<form data-ss class="form"><label class="w">Nombre de la serie<input data-sq value="'+esc(S.sq)+'" placeholder="Ej: The Last of Us" enterkeyhint="search"></label><button class="btn" type="submit">Buscar</button></form><p class="mut" style="font-size:13px;margin:8px 0 0">Si no aparece, probá con el nombre original (en inglés).</p>';
+    if(S.sbusy)h+='<p class="mut">Buscando…</p>';
+    else if(S.sres)h+=S.sres.length?S.sres.map((s,j)=>'<button class="res" data-sr="'+j+'">'+(s.image&&s.image.medium?'<img src="'+esc(s.image.medium)+'" alt="" loading="lazy">':'<img alt="">')+'<span><b>'+esc(s.name)+'</b><br><small class="mut">'+esc([s.premiered&&s.premiered.slice(0,4),(s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)].filter(Boolean).join(' · '))+'</small></span></button>').join('')+'<p style="margin:10px 0 0"><button class="btn ghost sm" data-act="sermanual">No está: cargarla a mano</button></p>':'<p class="mut">No encontré resultados.</p><button class="btn ghost sm" data-act="sermanual">Cargarla a mano</button>'}
+  h+='</div>';
+  const ord=L.map((x,i)=>[x,i]).sort((a,b)=>{const fa=a[0].prox&&a[0].prox.f||'9',fb=b[0].prox&&b[0].prox.f||'9';return fa<fb?-1:fa>fb?1:0});
+  h+='<div class="card"><header><h2>En espera</h2>'+(L.some(x=>x.tvm)?'<button class="btn ghost sm" data-act="serref">Actualizar</button>':'')+'</header>'+(L.length?'':'<p class="empty">Todavía no agregaste series.</p>')+
+   ord.map(([x,i])=>{const P=x.prox||{},plan=serPlan(x),ya=P.f&&dias(P.f)<=0;
+    return '<div class="it"><div class="ith"><h3>'+esc(x.t)+'</h3><button class="x" aria-label="Quitar '+esc(x.t)+'" data-delser="'+i+'">×</button></div><p class="mut" style="margin:0;font-size:14px">'+esc(svcName(x.svc))+' · viste hasta la T'+esc(x.ult)+'</p><p style="margin:6px 0 0">'+serEst(x)+'</p>'+(plan?'<p style="margin:4px 0 0;font-size:14px">'+plan+'</p>':'')+
+     '<div class="acts">'+(ya?'<button class="btn sm" data-act="sertow" data-i="'+i+'">Pasar a “Para ver”</button>':'')+'<a class="btn ghost sm" href="'+esc(JW(x.t))+'" target="_blank" rel="noopener">JustWatch</a></div>'+
+     '<details style="margin-top:8px"><summary>Cargar fecha a mano</summary><div class="form" style="margin-top:8px"><label>Temporada<input inputmode="numeric" data-ser="'+i+'" data-f="temp" value="'+esc(P.temp||+x.ult+1)+'"></label><label>Estreno<input type="date" data-ser="'+i+'" data-f="f" value="'+esc(P.f||'')+'"></label><label>Último capítulo<input type="date" data-ser="'+i+'" data-f="fin" value="'+esc(P.fin||'')+'"></label></div></details></div>'}).join('')+'</div>'+
+   '<p class="foot">Datos de series: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA)</p>';
+  return h}
+function vPromos(){$('#hero').innerHTML='';const cs=catS(),L=[];Object.keys(cs).forEach(id=>pubPromos(id).forEach(p=>L.push({id,p})));
+  const tengo=id=>D.subs.some(x=>x.svc===id);L.sort((a,b)=>(tengo(b.id)-tengo(a.id))||(pend(b.id).length-pend(a.id).length));
+  return '<div class="card"><header><h2>Promos públicas</h2><b>'+L.length+'</b></header><p class="hint">Promos vigentes en Argentina'+(CAT&&CAT.promosActualizado?', revisadas el '+esc(CAT.promosActualizado):'')+'. Suelen ser para nuevos o ex suscriptores: si rotás una plataforma, al volver podés entrar con promo.</p>'+
+   (L.length?L.map(({id,p})=>{const pv=pend(id).length,i=D.subs.findIndex(x=>x.svc===id);return '<div class="it"><div class="ith"><h3>'+esc(cs[id].n)+'</h3>'+(tengo(id)?'<span class="tag">La tenés</span>':'')+'</div><p style="margin:4px 0 0">'+esc(p.t)+'</p><p class="mut" style="margin:2px 0 0;font-size:14px">'+(p.quien?esc(p.quien)+' · ':'')+(p.hasta?'hasta el '+fDM(p.hasta):'sin fecha de fin publicada')+(pv?' · '+pl(pv,'título')+' para ver':'')+'</p><div class="acts">'+(i>=0?'<button class="btn sm" data-act="promouse" data-i="'+i+'" data-j="'+pubPromos(id).indexOf(p)+'">¿Me conviene?</button>':'')+(p.url?'<a class="btn ghost sm" href="'+esc(p.url)+'" target="_blank" rel="noopener">Ver la oferta</a>':'')+'</div></div>'}).join('')
+     :'<p class="empty">No hay promos públicas vigentes por ahora.</p>')+'</div><div class="card"><h2>¿Te ofrecieron una promo al darte de baja?</h2><p class="hint" style="margin-top:6px">Cargala en Plataformas, dentro de esa suscripción, con “Me ofrecieron una promo”. Te digo si te conviene según lo que tenés para ver.</p><a class="btn ghost" href="#plataformas">Ir a Plataformas</a></div>'}
+function vAjustes(){$('#hero').innerHTML='';
+  return '<div class="card"><h2>Avisos</h2><div class="form" style="margin-top:10px"><label>Avisarme de estrenos (días antes)<input inputmode="numeric" data-cfg="avisoEstreno" value="'+esc(D.avisoEstreno)+'"></label><label>Avisarme de cortes (días antes)<input inputmode="numeric" data-cfg="aviso" value="'+esc(D.aviso)+'"></label></div>'+(LN?'<div class="acts"><button class="btn ghost" data-act="notifs">'+(D.notifOk?'Revisar permiso de notificaciones':'Activar notificaciones')+'</button></div>':'')+'</div>'+
+   '<div class="card"><h2>Dólar</h2><p class="hint">Para las plataformas que cobran en dólares uso el dólar oficial más '+esc(rec())+'% de impuestos. Hoy: '+fmt(dolar())+'.</p><div class="form"><label>Usar otro valor (0 = automático)<input inputmode="numeric" data-cfg="dolarManual" value="'+esc(D.dolarManual||0)+'"></label></div></div>'+
+   '<div class="card"><h2>Tus datos</h2><p class="hint">Todo queda guardado solo en este celular. Hacé una copia si vas a cambiar de teléfono.</p><div class="acts"><button class="btn ghost" data-act="exp">Exportar copia</button><label class="btn ghost" style="flex-direction:row;color:var(--ink);font-size:16px">Importar copia<input type="file" accept="application/json,.json" data-imp hidden></label><button class="btn ghost" data-act="borrar" style="color:var(--bad)">Borrar todo</button></div></div>'+
+   '<div class="card"><h2>Acerca de</h2><p class="hint" style="margin-top:6px">Seriéfilos '+VERSION+'. Precios y promos de referencia para Argentina, revisados una vez por mes; pueden variar. Datos de series de TVmaze (CC BY-SA). Búsquedas en JustWatch. Seriéfilos no está afiliada a ninguna plataforma.</p><a class="btn ghost" href="https://aleknot696.github.io/seriefilos/privacidad.html" target="_blank" rel="noopener">Política de privacidad</a></div>'}
+const VIEWS={inicio:vInicio,plataformas:vPlataformas,paraver:vParaver,series:vSeries,promos:vPromos,ajustes:vAjustes};
+function render(){
+  $('#view').innerHTML=VIEWS[S.route]();
+  document.querySelectorAll('nav.tabs a').forEach(x=>{if(x.dataset.r===S.route)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')})}
+function route(){const r=location.hash.slice(1);S.route=VIEWS[r]?r:'inicio';render();window.scrollTo(0,0)}
+window.addEventListener('hashchange',route);
+
+/* ===== eventos ===== */
+const V=$('#view');let needR=false;
+V.addEventListener('input',e=>{const t=e.target,d=t.dataset;
+  if(d.jw!=null){S.jw=t.value;const a=$('#jwA');if(a)a.href=JW(t.value);return}
+  if(d.nw){S.nw[d.nw]=t.value;return}
+  if(d.sq!=null){S.sq=t.value;return}
+  if(d.sult!=null){S.sult=t.value;return}
+  if(d.ssvc!=null){S.ssel.svc=t.value;return}
+  if(d.nc){S.nc[d.nc]=t.value;if(d.nc==='mon')render();return}
+  if(d.ns!=null){S.ns=t.value;S.np='';render();return}
+  if(d.np!=null){S.np=t.value;return}
+  if(d.bj!=null&&S.bj){S.bj.f=t.value;return}
+  if(d.pf&&S.pf){S.pf[d.pf]=t.value;const x=D.subs[S.pf.i],el=$('#pfv');if(x&&el)el.innerHTML=pfVerdict(x);return}
+  if(d.wv!=null){D.watch[+d.wv].visto=t.checked;save();render();return}
+  if(d.subrot!=null){const x=D.subs[+d.subrot];x.rot=t.checked;if(!t.checked){delete x.pausa;delete x.alta;delete x.baja;delete x.bajaSF;delete x.hasta}save();render();return}
+  if(d.subplan!=null){D.subs[+d.subplan].plan=t.value;save();render();return}
+  if(d.cfg){D[d.cfg]=pn(t.value);save();return}
+  if(d.ser!=null){const x=D.series[+d.ser];x.prox=Object.assign({temp:+x.ult+1,estado:'confirmada'},x.prox||{});x.prox.manual=true;if(d.f==='temp')x.prox.temp=pn(t.value);else if(t.value)x.prox[d.f]=t.value;else delete x.prox[d.f];if(x.prox.f)x.prox.estado='fecha';save();needR=true;return}});
+V.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(needR&&!(a&&a.tagName==='INPUT'&&V.contains(a))){needR=false;render()}},0));
+V.addEventListener('change',e=>{const t=e.target;if(t.dataset.imp!=null&&t.files[0]){const r=new FileReader();r.onload=async()=>{try{const j=JSON.parse(r.result);if(!j||j.app!=='seriefilos')throw 0;if(!await ask('¿Reemplazar tus datos por los de la copia?','Reemplazar'))return;D=Object.assign(D0(),j.datos);save();render();toast('Copia importada')}catch(x){toast('Ese archivo no es una copia de Seriéfilos')}};r.readAsText(t.files[0])}});
+V.addEventListener('submit',async e=>{if(e.target.dataset.ss==null)return;e.preventDefault();const q=S.sq.trim();if(!q){toast('Escribí el nombre');return}
+  S.sbusy=true;S.sres=null;render();try{S.sres=await tvmSearch(q)}catch(x){S.sres=null;toast('Sin conexión: probá de nuevo o cargala a mano');S.sbusy=false;S.sres=[];render();return}S.sbusy=false;render()});
+document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.go){location.hash=d.go;return}
+  if(!V.contains(b))return;
+  if(d.delsub!=null){const x=D.subs[+d.delsub];if(!await ask('¿Quitar '+subInfo(x).n+'?','Quitar'))return;D.subs.splice(+d.delsub,1);save();render();return}
+  if(d.delw!=null){D.watch.splice(+d.delw,1);save();render();return}
+  if(d.unw!=null){D.watch[+d.unw].visto=false;save();render();return}
+  if(d.delser!=null){const x=D.series[+d.delser];if(!await ask('¿Quitar “'+x.t+'”?','Quitar'))return;D.series.splice(+d.delser,1);save();render();return}
+  if(d.sr!=null){const s=S.sres[+d.sr];S.ssel={name:s.name,id:s.id,premiered:s.premiered,svc:svcFromNet((s.webChannel&&s.webChannel.name)||(s.network&&s.network.name))};S.sult='1';render();return}
+  const C=D;switch(d.act){
+    case 'introx':D.intro=false;save();render();break;
+    case 'notifs':askNotifs();break;
+    case 'addsub':{if(S.ns==='otra'){if(!S.nc.n.trim()){toast('Poné el nombre');break}const v=S.nc.mon==='USD'?(parseFloat(String(S.nc.m).replace(',','.'))||0):pn(S.nc.m);C.subs.push({n:S.nc.n.trim(),m:v,mon:S.nc.mon});S.nc={n:'',m:'',mon:'ARS'}}
+      else{if(C.subs.some(x=>x.svc===S.ns)&&!await ask('Ya tenés '+catS()[S.ns].n+'. ¿Agregarla igual?','Agregar'))break;C.subs.push({svc:S.ns,plan:S.np})}D.intro=false;save();render();toast('Plataforma agregada');break}
+    case 'subact':{const x=C.subs[+d.i];delete x.pausa;delete x.hasta;x.alta=today();delete x.baja;delete x.bajaSF;save();render();toast('Activada: acordate de darte de baja hoy');break}
+    case 'subbaja':{const x=C.subs[+d.i];x.baja=true;if(!x.alta)x.alta=today();S.bj={i:+d.i,f:subCorte(x)};save();if(S.route!=='plataformas')location.hash='plataformas';else render();toast('Confirmá hasta qué fecha la ves');break}
+    case 'subpausa':{const x=C.subs[+d.i];if(!await ask('¿Ya la diste de baja? Desde el mes que viene no se cuenta.','Sí, la di de baja'))break;const n=new Date();x.alta=ymd(new Date(n.getFullYear(),n.getMonth(),1));x.baja=true;x.bajaSF=true;delete x.hasta;S.bj={i:+d.i,f:''};save();render();break}
+    case 'bjopen':{const x=C.subs[+d.i];S.bj={i:+d.i,f:x.hasta||(x.bajaSF?'':subCorte(x))};render();break}
+    case 'bjsave':{const x=C.subs[+d.i],f=S.bj&&S.bj.f;if(f&&/^\d{4}-\d{2}-\d{2}$/.test(f))x.hasta=f;else delete x.hasta;S.bj=null;save();render();toast(x.hasta?'La ves hasta el '+fDM(x.hasta)+'. Te aviso antes.':'Sin fecha exacta');break}
+    case 'bjskip':S.bj=null;render();break;
+    case 'promoopen':S.pf={i:+d.i,v:'',n:'',desde:nowK(),nota:''};render();break;
+    case 'promouse':{const x=C.subs[+d.i],p=pubPromos(x.svc)[+d.j];if(!p)break;S.pf={i:+d.i,v:p.pct?p.pct+'%':String(p.m||''),n:String(p.meses||''),desde:nowK(),nota:'Promo pública: '+p.t};if(S.route!=='plataformas')location.hash='plataformas';else render();break}
+    case 'promocancel':S.pf=null;render();break;
+    case 'promosave':{const x=C.subs[+d.i],P=S.pf,n=pn(P&&P.n),pr=pfParse(P&&P.v);if(!n||!(pr.pct||pr.m)){toast('Completá descuento y meses');break}
+      x.promo=Object.assign(pr,{meses:n,desde:P.desde||nowK(),nota:P.nota||''});delete x.pausa;delete x.alta;delete x.baja;delete x.bajaSF;delete x.hasta;S.pf=null;save();render();toast('Promo guardada hasta '+labS(promoFin(x)));break}
+    case 'promodel':{const x=C.subs[+d.i];if(!await ask('¿Quitar la promo de '+subInfo(x).n+'?','Quitar'))break;delete x.promo;save();render();break}
+    case 'addw':{if(!S.nw.t.trim()){toast('Poné el título');break}C.watch.push({id:uid(),t:S.nw.t.trim(),svc:S.nw.svc,tipo:S.nw.tipo});S.nw={t:'',svc:S.nw.svc,tipo:S.nw.tipo};save();render();toast('Agregado a “Para ver”');break}
+    case 'sermanual':S.ssel={name:S.sq.trim()||'Serie',id:null,svc:''};S.sult='1';render();break;
+    case 'sercancel':S.ssel=null;render();break;
+    case 'seradd':{const s=S.ssel;if(!s.name.trim()){toast('Poné el nombre');break}const x={id:uid(),t:s.name,svc:s.svc||'',ult:Math.max(1,pn(S.sult)||1),tvm:s.id||null,prox:null};C.series.push(x);S.ssel=null;S.sres=null;S.sq='';save();render();
+      if(x.tvm){try{await serCheck(x);save();render()}catch(err){}}toast('Agregada');break}
+    case 'serref':toast('Revisando…');serRefresh(true);break;
+    case 'sertow':{const x=C.series[+d.i],P=x.prox||{},tp=P.temp||+x.ult+1;C.watch.push({id:uid(),t:x.t+' (T'+tp+')',svc:x.svc,tipo:'Serie'});x.ult=tp;x.prox=null;delete x.chk;save();render();toast('En “Para ver”. Queda en espera de la T'+(tp+1));if(x.tvm)serCheck(x).then(()=>{save();render()}).catch(()=>{});break}
+    case 'exp':{const txt=JSON.stringify({app:'seriefilos',version:1,exportado:new Date().toISOString(),datos:D},null,1),blob=new Blob([txt],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='seriefilos-copia-'+today()+'.json';document.body.append(a);a.click();a.remove();
+      try{await navigator.clipboard.writeText(txt)}catch(x){}toast('Copia exportada');break}
+    case 'borrar':if(await ask('¿Borrar todos tus datos de Seriéfilos? No se puede deshacer.','Borrar todo')){D=D0();save();render();toast('Datos borrados')}break}});
+
+/* ===== arranque ===== */
+route();loadCat();setTimeout(()=>serRefresh(false),1500);scheduleNotifs();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){subVencidas();render();serRefresh(false)}});
+</script>
+</body>
+</html>

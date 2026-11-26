@@ -1,0 +1,19 @@
+{
+  "name": "seriefilos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Seriéfilos: pagá solo las plataformas que usás.",
+  "scripts": {
+    "sync": "cap sync android",
+    "icons": "capacitor-assets generate --android --iconBackgroundColor '#1b1033' --iconBackgroundColorDark '#1b1033' --splashBackgroundColor '#1b1033' --splashBackgroundColorDark '#1b1033'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.3",
+    "@capacitor/core": "^8.6.3",
+    "@capacitor/local-notifications": "^8.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.3"
+  }
+}

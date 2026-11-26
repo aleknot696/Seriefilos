@@ -1,0 +1,107 @@
+{
+ "actualizado": "26/11/2026",
+ "mes": "2026-11",
+ "promosActualizado": "26/11/2026",
+ "dolar": 1580,
+ "rec": 51,
+ "servicios": {
+  "appletv": {
+   "n": "Apple TV",
+   "mon": "USD",
+   "planes": {
+    "mensual": {
+     "n": "Mensual",
+     "m": 6.99
+    }
+   }
+  },
+  "crunchyroll": {
+   "n": "Crunchyroll",
+   "mon": "ARS",
+   "planes": {
+    "fan": {
+     "n": "Fan",
+     "m": 5199
+    },
+    "megafan": {
+     "n": "Mega Fan",
+     "m": 6099
+    }
+   }
+  },
+  "disney": {
+   "n": "Disney+",
+   "mon": "ARS",
+   "planes": {
+    "anuncios": {
+     "n": "Estándar con anuncios",
+     "m": 11999
+    },
+    "estandar": {
+     "n": "Estándar",
+     "m": 15599
+    },
+    "premium": {
+     "n": "Premium",
+     "m": 23999
+    }
+   }
+  },
+  "hbo": {
+   "n": "HBO Max",
+   "mon": "ARS",
+   "planes": {
+    "basico": {
+     "n": "Básico con anuncios",
+     "m": 7853
+    },
+    "estandar": {
+     "n": "Estándar",
+     "m": 10152
+    },
+    "platino": {
+     "n": "Platino",
+     "m": 12209
+    }
+   },
+   "promos": [
+    {
+     "t": "50% off en cualquier plan mensual por 12 meses (Black Friday)",
+     "pct": 50,
+     "meses": 12,
+     "quien": "Nuevos y ex suscriptores",
+     "hasta": null,
+     "url": "https://help.hbomax.com/ar-es/Answer/Detail/000002537"
+    }
+   ]
+  },
+  "netflix": {
+   "n": "Netflix",
+   "mon": "ARS",
+   "planes": {
+    "basico": {
+     "n": "Básico",
+     "m": 13769
+    },
+    "estandar": {
+     "n": "Estándar",
+     "m": 22949
+    },
+    "premium": {
+     "n": "Premium",
+     "m": 30599
+    }
+   }
+  },
+  "prime": {
+   "n": "Prime Video",
+   "mon": "ARS",
+   "planes": {
+    "unico": {
+     "n": "Plan único",
+     "m": 7994
+    }
+   }
+  }
+ }
+}
