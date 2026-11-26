@@ -93,6 +93,20 @@
     }
    }
   },
+  "paramount": {
+   "n": "Paramount+",
+   "mon": "ARS",
+   "planes": {
+    "estandar": {
+     "n": "Estándar",
+     "m": 6862
+    },
+    "premium": {
+     "n": "Premium",
+     "m": 9555
+    }
+   }
+  },
   "prime": {
    "n": "Prime Video",
    "mon": "ARS",
