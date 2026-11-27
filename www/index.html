@@ -91,6 +91,7 @@ s{color:var(--mut);font-weight:400}
 .hrow{display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}.hrow>div{width:104px;flex:none}
 .meta{display:flex;align-items:flex-start;gap:4px;margin-top:6px}.meta small{flex:1;color:var(--mut);font-size:12px;line-height:1.3}
 .hrow>div>a{display:block;color:inherit;text-decoration:none}
+.btn.trl{border-color:var(--amb);gap:8px}.trl svg{color:var(--amb)}.trl small{color:var(--mut);font-weight:500;font-size:13px}span.trl{opacity:.7}
 .pst.more{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--amb);background:var(--card);padding:0;cursor:pointer}.pst.more span{position:static;font:700 14px/1.2 system-ui,sans-serif;color:var(--amb)}
 .add{width:36px;height:36px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--amb);display:flex;align-items:center;justify-content:center;padding:0;flex:none}.add:disabled{color:var(--ok);cursor:default}
 .hero2{position:relative;height:196px;border-radius:14px;overflow:hidden;background:var(--soft) center 22%/cover no-repeat;border:1px solid #ffffff14;display:flex;flex-direction:column;justify-content:space-between;padding:12px 14px}
@@ -334,7 +335,7 @@ const MONO={netflix:'N',hbo:'HM',disney:'D+',prime:'PV',appletv:'A',crunchyroll:
 const mono=(svc,n)=>MONO[svc]||String(n||'?').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const PCOL=['#3a2f22','#23323d','#3b2430','#26372c','#2f2a3f','#3d3420','#22303a','#3a2626','#2c3530'];
 const pcol=t=>{let h=0;for(const c of String(t||''))h=(h*31+c.charCodeAt(0))>>>0;return PCOL[h%PCOL.length]};
-const ICO={back:'<path d="M15 18l-6-6 6-6"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12l5 5 9-10"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'};
+const ICO={play:'<path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none"/>',back:'<path d="M15 18l-6-6 6-6"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12l5 5 9-10"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'};
 const ico=(k,s)=>'<svg width="'+(s||20)+'" height="'+(s||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICO[k]+'</svg>';
 function poster(img,t,bd){return '<div class="pst" style="background:'+pcol(t)+'"><span>'+esc(t)+'</span>'+(img?'<img src="'+esc(img)+'" alt="" decoding="async" onerror="this.remove()">':'')+(bd?'<em>'+esc(bd)+'</em>':'')+'</div>'}
 const DSEM=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -390,7 +391,7 @@ function vDet(){const x=D.watch.find(z=>z.id===S.det);if(!x){S.det=null;return v
   if(!x.tvm&&(x.tipo||'Serie')!=='Película'){h+='<div class="card"><p style="margin:0 0 8px">Buscá la serie para ver su carátula y seguir los capítulos.</p>';
     if(S.lbusy)h+='<p class="mut">Buscando…</p>';else if(S.lres)h+=(S.lres.length?S.lres.map((s,j)=>'<button class="res" data-lr="'+j+'">'+(s.image&&s.image.medium?'<img src="'+esc(s.image.medium)+'" alt="" loading="lazy">':'<img alt="">')+'<span><b>'+esc(s.name)+'</b>'+(s._es?' <small class="mut">('+esc(s._es)+')</small>':'')+'<br><small class="mut">'+esc([s.premiered&&s.premiered.slice(0,4),(s.webChannel&&s.webChannel.name)||(s.network&&s.network.name)].filter(Boolean).join(' · '))+'</small></span></button>').join(''):'<p class="mut">No encontré resultados.</p>');
     else h+='<button class="btn ghost" data-act="wlink">Buscar “'+esc(x.t)+'”</button>';h+='</div>'}
-  h+='<div class="card" style="margin-top:14px"><label>Plataforma<select data-wsvc="'+i+'">'+svs.map(k=>'<option value="'+esc(k)+'"'+(x.svc===k?' selected':'')+'>'+esc(cs[k].n)+'</option>').join('')+'<option value=""'+(!x.svc?' selected':'')+'>Otra / no sé</option></select></label><div class="acts"><button class="btn ghost" data-act="wvisto">'+ico('check',18)+'Ya la vi</button><a class="btn ghost" href="'+esc(JW(x.t))+'" target="_blank" rel="noopener">JustWatch</a><button class="btn ghost" data-act="wdel" style="color:var(--bad)">Quitar</button></div></div>';
+  h+='<div class="card" style="margin-top:14px"><label>Plataforma<select data-wsvc="'+i+'">'+svs.map(k=>'<option value="'+esc(k)+'"'+(x.svc===k?' selected':'')+'>'+esc(cs[k].n)+'</option>').join('')+'<option value=""'+(!x.svc?' selected':'')+'>Otra / no sé</option></select></label><div class="acts">'+(()=>{if(!TMDB_OK||(!x.tmdb&&!x.tvm))return trlBtn(null,x.t.replace(/\s*\(T\d+\)$/,''));const tk='w'+x.id;if(TRL[tk]===undefined)setTimeout(()=>trlFor(tk,x),0);return trlBtn(TRL[tk],x.t.replace(/\s*\(T\d+\)$/,''))})()+'<button class="btn ghost" data-act="wvisto">'+ico('check',18)+'Ya la vi</button><a class="btn ghost" href="'+esc(JW(x.t))+'" target="_blank" rel="noopener">JustWatch</a><button class="btn ghost" data-act="wdel" style="color:var(--bad)">Quitar</button></div></div>';
   return h+'<p class="foot">Datos: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA)</p>'}
 async function detLoad(x){const id=x.tvm;epBusy[id]=true;try{if(!x.img){try{const r=await fetchT(TVM+'/shows/'+id);if(r.ok){const sh=await r.json();if(sh.image&&sh.image.medium)x.img=sh.image.medium}}catch(e){}}const e=await epLoad(id);progUpd(x,e);save();delete epBusy[id]}catch(err){epBusy[id]='err'}if(S.route==='paraver'&&S.det===x.id)render()}
 /* progreso de toda la lista, sin apuro: una serie por vez */
@@ -451,6 +452,19 @@ async function topAdd(z,mias){toast('Agregando “'+z.n+'”…');let tvm=null,i
   if(D.watch.some(w=>(tvm&&w.tvm===tvm)||w.tmdb===z.id))return toast('Ya está en tu lista');
   const x={id:uid(),t:z.n,svc,tipo:'Serie',tvm,img,tmdb:z.id};D.watch.push(x);save();render();toast('“'+z.n+'” agregada a tu lista');
   if(tvm)epLoad(tvm).then(e=>{progUpd(x,e);x.progd=today();save()}).catch(()=>{})}
+/* Tráiler: videos de YouTube que guarda TMDB. Prioriza español (latino si está marcado), después el oficial en inglés */
+const TRL={};
+async function tmdbIdFor(x){if(x.tmdb)return x.tmdb;if(!x.tvm)return null;const r=await fetchT(TVM+'/shows/'+x.tvm);if(!r.ok)return null;const ex=(await r.json()).externals||{};if(!(ex.imdb||ex.thetvdb))return null;
+  const q=await fetchT(TMDB+'/find/'+(ex.imdb||ex.thetvdb)+'?api_key='+TMDB_KEY+'&external_source='+(ex.imdb?'imdb_id':'tvdb_id'));if(!q.ok)return null;const t=((await q.json()).tv_results||[])[0];return t?t.id:null}
+async function trlLoad(tmdb){if(!TMDB_OK||!tmdb)return null;const r=await fetchT(TMDB+'/tv/'+tmdb+'/videos?api_key='+TMDB_KEY+'&language=es-AR&include_video_language=es,en');if(!r.ok)throw 0;
+  const V=((await r.json()).results||[]).filter(v=>v.site==='YouTube'&&v.key&&(v.type==='Trailer'||v.type==='Teaser'));
+  const sc=v=>(v.type==='Trailer'?0:4)+(v.iso_639_1==='es'?(['AR','MX','419','US','CO','CL'].includes(v.iso_3166_1)?0:1):v.iso_639_1==='en'?(v.official?2:3):9);
+  const b=V.sort((a,c)=>sc(a)-sc(c))[0];return b&&sc(b)<9?{k:b.key,es:b.iso_639_1==='es'}:null}
+function trlBtn(T,n,full){const st=full?' style="width:100%;margin-top:8px"':'';
+  if(T===undefined||T==='load')return '<span class="btn ghost trl"'+st+' aria-disabled="true">'+ico('play',18)+'Buscando tráiler…</span>';
+  if(T)return '<a class="btn ghost trl"'+st+' href="https://www.youtube.com/watch?v='+encodeURIComponent(T.k)+'" target="_blank" rel="noopener">'+ico('play',18)+'Ver tráiler<small>· en '+(T.es?'español':'inglés')+'</small></a>';
+  return '<a class="btn ghost trl"'+st+' href="https://www.youtube.com/results?search_query='+encodeURIComponent(n+' tráiler')+'" target="_blank" rel="noopener">'+ico('play',18)+'Buscar tráiler en YouTube</a>'}
+async function trlFor(key,x){if(TRL[key]!==undefined)return;TRL[key]='load';try{TRL[key]=await trlLoad(await tmdbIdFor(x))}catch(e){TRL[key]=null}render()}
 /* Ficha con sinopsis (desde Descubrir): en español desde TMDB; si no hay, la de TVmaze en inglés */
 const INF={};const GEN={Drama:'Drama',Comedy:'Comedia',Action:'Acción',Crime:'Crimen','Science-Fiction':'Ciencia ficción',Fantasy:'Fantasía',Thriller:'Suspenso',Horror:'Terror',Mystery:'Misterio',Romance:'Romance',Adventure:'Aventura',Family:'Familia',Anime:'Anime',Supernatural:'Sobrenatural',War:'Bélica',History:'Historia',Medical:'Médica',Legal:'Judicial',Music:'Música',Sports:'Deportes',Western:'Western',Espionage:'Espionaje',Children:'Infantil'};
 const EST={'Returning Series':'En emisión','Ended':'Terminada','Canceled':'Cancelada','In Production':'En producción','Planned':'Anunciada',Running:'En emisión','To Be Determined':'Sin confirmar','In Development':'En desarrollo'};
@@ -461,7 +475,7 @@ async function infoLoad(k,id){const key=k+id;if(INF[key])return;INF[key]={cargan
   try{if(k==='m'){if(!TMDB_OK)throw 0;I=await tmdbTv(id)}
   else{const r=await fetchT(TVM+'/shows/'+id+'?embed=seasons');if(!r.ok)throw 0;const sh=await r.json();
     I={n:sh.name,ov:String(sh.summary||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(),en:true,gen:(sh.genres||[]).map(g=>GEN[g]||g).slice(0,3),temps:((sh._embedded&&sh._embedded.seasons)||[]).filter(z=>z.premiereDate&&z.premiereDate<=today()).length,y:(sh.premiered||'').slice(0,4),v:sh.rating&&sh.rating.average||0,img:sh.image&&sh.image.medium||'',est:EST[sh.status]||''};
-    const ex=sh.externals||{};if(TMDB_OK&&(ex.imdb||ex.thetvdb)){try{const q=await fetchT(TMDB+'/find/'+(ex.imdb||ex.thetvdb)+'?api_key='+TMDB_KEY+'&language=es-AR&external_source='+(ex.imdb?'imdb_id':'tvdb_id'));if(q.ok){const t=((await q.json()).tv_results||[])[0];if(t){const es=await tmdbTv(t.id);if(es.ov&&!es.en){I.ov=es.ov;I.en=false}if(es.gen.length)I.gen=es.gen;if(es.n)I.nes=es.n}}}catch(e){}}}
+    const ex=sh.externals||{};if(TMDB_OK&&(ex.imdb||ex.thetvdb)){try{const q=await fetchT(TMDB+'/find/'+(ex.imdb||ex.thetvdb)+'?api_key='+TMDB_KEY+'&language=es-AR&external_source='+(ex.imdb?'imdb_id':'tvdb_id'));if(q.ok){const t=((await q.json()).tv_results||[])[0];if(t){const es=await tmdbTv(t.id);if(es.ov&&!es.en){I.ov=es.ov;I.en=false}if(es.gen.length)I.gen=es.gen;if(es.n)I.nes=es.n;I.tmdb=t.id}}}catch(e){}}}
   INF[key]=I}catch(e){INF[key]={err:1}}
   if(S.info&&S.info.k===k&&S.info.id===id)render()}
 function vInfo(){const{k,id}=S.info,I=INF[k+id],z=k==='m'?topFind(id):(DESC&&DESC.it.find(q=>q.sid===id));if(!I)setTimeout(()=>infoLoad(k,id),0);
@@ -471,6 +485,7 @@ function vInfo(){const{k,id}=S.info,I=INF[k+id],z=k==='m'?topFind(id):(DESC&&DES
   if(z&&k==='t')h+='<p style="margin:8px 0 0;font-size:14px"><b>'+esc(fSem(z.f))+'</b> · '+(z.e===1?(z.s===1?'Estreno':'Temporada '+z.s):'T'+z.s+'E'+z.e)+'</p>';
   h+='</div></div>';
   h+=w?'<a class="btn ghost" style="width:100%" href="#ver/'+esc(w.id)+'">'+ico('check',18)+'Ya está en tu lista: ver</a>':z?'<button class="btn" style="width:100%;min-height:48px" '+(k==='m'?'data-tadd="'+id+'"':'data-dadd="'+id+'"')+'>'+ico('plus',18)+'Agregar a mi lista</button>':'';
+  {const tk='i'+k+id,tm=k==='m'?id:I&&I.tmdb;if(!TMDB_OK||(I&&!I.cargando&&(I.err||!tm)))h+=trlBtn(null,n,true);else if(!I||I.cargando)h+=trlBtn('load',n,true);else{if(TRL[tk]===undefined)setTimeout(()=>trlFor(tk,{tmdb:tm}),0);h+=trlBtn(TRL[tk],n,true)}}
   h+='<div class="card" style="margin-top:14px"><h3>Sinopsis</h3>'+(!I||I.cargando?'<p class="mut">Cargando…</p>':I.err?'<p class="mut">No pude cargar la ficha (¿sin conexión?).</p><div class="acts"><button class="btn ghost sm" data-act="infretry">Reintentar</button></div>':I.ov?(I.en?'<p class="mut" style="margin:6px 0 4px;font-size:13px">No hay sinopsis en español; esta es la original en inglés.</p>':'')+'<p style="margin:6px 0 0">'+esc(I.ov)+'</p>':'<p class="mut">Esta serie todavía no tiene sinopsis.</p>')+'</div>';
   h+='<div class="acts"><a class="btn ghost" href="'+esc(JW(n))+'" target="_blank" rel="noopener">¿Dónde está? JustWatch</a></div>';
   return h+'<p class="foot">Datos: '+(k==='t'?'<a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA) · ':'')+'<a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a></p>'}
