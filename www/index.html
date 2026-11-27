@@ -241,7 +241,7 @@ function serEst(x){const P=x.prox,n=+x.ult+1,ch=x.chk?' <small class="mut">· re
 
 /* ===== notificaciones (Capacitor) ===== */
 const LN=(()=>{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;return(C.Plugins&&C.Plugins.LocalNotifications)||(C.registerPlugin&&C.registerPlugin('LocalNotifications'))})();
-const NAT=(()=>{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;const g=n=>(C.Plugins&&C.Plugins[n])||(C.registerPlugin&&C.registerPlugin(n));return{FS:g('Filesystem'),SH:g('Share')}})();
+const NAT=(()=>{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;const g=n=>(C.Plugins&&C.Plugins[n])||(C.registerPlugin&&C.registerPlugin(n));return{FS:g('Filesystem'),SH:g('Share'),APP:g('App')}})();
 const hid=s=>{let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)%2000000000+1};
 function notifPlan(){const out=[],now=Date.now(),at=(f,h)=>{const d=dObj(f);d.setHours(h||10,0,0,0);return d};
   const add=(key,f,title,body)=>{const d=at(f);if(d.getTime()>now+60000)out.push({id:hid(key),title,body,isExactNotification:false,schedule:{at:d,allowWhileIdle:true}})};
@@ -621,6 +621,20 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
     case 'borrar':if(await ask('¿Borrar todos tus datos de Seriéfilos? No se puede deshacer.','Borrar todo')){D=D0();save();render();toast('Datos borrados')}break}});
 
 /* ===== arranque ===== */
+/* Botón atrás de Android: cierra lo abierto, vuelve a la pantalla anterior y solo sale desde Inicio */
+const HST=[location.hash||'#inicio'];let hNav=false;
+window.addEventListener('hashchange',()=>{const h=location.hash||'#inicio';if(hNav){hNav=false;return}if(HST[HST.length-1]!==h)HST.push(h);if(HST.length>50)HST.splice(1,1)});
+const irA=h=>{if((location.hash||'#inicio')===h)return;hNav=true;location.replace(h)};
+function atras(){
+  const m=document.querySelector('.modal');if(m){const c=m.querySelector('[data-a="0"]');if(c)c.click();else m.remove();return true}
+  if(S.wsel||S.wres||S.wman||S.wbusy){S.wsel=null;S.wres=null;S.wman=false;render();return true}
+  if(S.ssel||S.sres||(S.sadd&&D.series.length)){S.ssel=null;S.sres=null;S.sadd=false;render();return true}
+  if(S.lres){S.lres=null;render();return true}
+  if(HST.length>1){HST.pop();irA(HST[HST.length-1]);return true}
+  const up=S.det?'#paraver':S.info?'#descubrir':(S.route==='paraver'&&S.ptab==='desc')?'#paraver':S.route!=='inicio'?'#inicio':null;
+  if(up){HST[0]=up;irA(up);return true}
+  return false}
+if(NAT&&NAT.APP)try{NAT.APP.addListener('backButton',()=>{if(!atras())NAT.APP.exitApp()})}catch(e){}
 route();loadCat();setTimeout(()=>serRefresh(false),1500);setTimeout(progRefresh,4000);scheduleNotifs();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){subVencidas();render();serRefresh(false);progRefresh()}});
 </script>
